@@ -1,0 +1,10 @@
+#items
+item.ingot_copper.name=Copper Ingot
+
+#blocks
+tile.ore_copper.name=Copper Ore
+tile.shop.name=Shop
+
+#etc
+itemGroup.adminshop=Admin Shop
+buttontext.buy=Buy
