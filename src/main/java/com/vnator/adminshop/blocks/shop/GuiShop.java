@@ -1,24 +1,23 @@
 package com.vnator.adminshop.blocks.shop;
 
 import com.vnator.adminshop.AdminShop;
-import com.vnator.adminshop.ConfigHandler;
 import com.vnator.adminshop.ModBlocks;
 import com.vnator.adminshop.capabilities.money.IMoney;
 import com.vnator.adminshop.capabilities.money.MoneyProvider;
 import com.vnator.adminshop.packets.PacketHandler;
 import com.vnator.adminshop.packets.PacketSendShopTransaction;
+import com.vnator.adminshop.utils.GuiButtonShop;
+import com.vnator.adminshop.utils.GuiButtonTab;
+import com.vnator.adminshop.utils.TabButtonFactory;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
@@ -37,6 +36,8 @@ public class GuiShop extends GuiContainer {
 
 	private ArrayList<GuiButtonShop[]> buyButtons;
 	private ArrayList<GuiButtonShop[]> sellButtons;
+	private GuiButtonTab [] catBuyButtons;
+	private GuiButtonTab [] catSellButtons;
 
 	private int buyCat, sellCat;
 	private boolean buyMode;
@@ -55,39 +56,41 @@ public class GuiShop extends GuiContainer {
 	@Override
 	public void initGui(){
 		super.initGui();
-		RenderHelper.enableGUIStandardItemLighting();
 
 		int x = (width-xSize) / 2;
 		int y = (height-ySize) / 2;
 
 		int buttonCounter = 0;
 
-		GuiButtonTab.ButtonGroup bsgroup = new GuiButtonTab.ButtonGroup();
-		GuiButtonTab buyTab = new GuiButtonTab(BUY_BUTTON_ID, x+8, y+4, "Buy", true, bsgroup);
+		//Create Buy and Sell Buttons
+		GuiButtonTab buyTab = TabButtonFactory.createBuySellButton(x+8, y+4, "Buy", true);//new GuiButtonTab(BUY_BUTTON_ID, x+8, y+4, "Buy", true, bsgroup);
 		buyTab.selectButton();
 		buttonList.add(buyTab);
-		GuiButtonTab sellTab = new GuiButtonTab(SELL_BUTTON_ID, x+33, y+4, "Sell", true, bsgroup);
+		GuiButtonTab sellTab = TabButtonFactory.createBuySellButton(x+33, y+4, "Sell", false);//new GuiButtonTab(SELL_BUTTON_ID, x+33, y+4, "Sell", true, bsgroup);
 		buttonList.add(sellTab);
 
 		buttonCounter = 2;
 
-		GuiButtonTab [] catBuyButtons = new GuiButtonTab[ShopStock.buyItems.size()];
-		GuiButtonTab.ButtonGroup buygroup = new GuiButtonTab.ButtonGroup();
+		//Create Category Tab Buttons
+		catBuyButtons = new GuiButtonTab[Math.min(ShopStock.buyItems.size(), ShopStock.buyCategories.length)];
 		for(int i = 0; i < catBuyButtons.length; i++){
-			catBuyButtons[i] = new GuiButtonTab(buttonCounter+i, 9, 17+18*i, ShopStock.buyCategories[i],
-					false, buygroup);
+			catBuyButtons[i] = TabButtonFactory.createCategoryButton(x+9, y+17+18*i, ShopStock.buyCategories[i], i);//new GuiButtonTab(buttonCounter+i, 9, 17+18*i, ShopStock.buyCategories[i], false, buygroup);
 			buttonList.add(catBuyButtons[i]);
 		}
+		if(catBuyButtons.length > 0) catBuyButtons[0].selectButton();
 		buttonCounter += catBuyButtons.length;
 
-		GuiButtonTab [] catSellButtons = new GuiButtonTab[ShopStock.sellItems.size()];
-		GuiButtonTab.ButtonGroup sellgroup = new GuiButtonTab.ButtonGroup();
+		catSellButtons = new GuiButtonTab[Math.min(ShopStock.sellItems.size(), ShopStock.sellCategories.length)];
+		TabButtonFactory.createNewGroup();
 		for(int i = 0; i < catSellButtons.length; i++){
-			catSellButtons[i] = new GuiButtonTab(buttonCounter+i, 9, 17+18*i, ShopStock.sellCategories[i],
-					false, sellgroup);
+			catSellButtons[i] = TabButtonFactory.createCategoryButton(x+9, y+17+18*i, ShopStock.sellCategories[i], i);//new GuiButtonTab(buttonCounter+i, 9, 17+18*i, ShopStock.sellCategories[i], false, sellgroup);
+			catSellButtons[i].enabled = false;
+			catSellButtons[i].visible = false;
 			buttonList.add(catSellButtons[i]);
 		}
+		if(catSellButtons.length > 0) catSellButtons[0].selectButton();
 		buttonCounter += catSellButtons.length;
+
 
 		buyButtons = new ArrayList<GuiButtonShop[]>();
 		sellButtons = new ArrayList<GuiButtonShop[]>();
@@ -148,7 +151,6 @@ public class GuiShop extends GuiContainer {
 		//Draw money remaining
 		IMoney imon = shopUser.getCapability(MoneyProvider.MONEY_CAPABILITY, null);
 		String money = imon.getFormattedMoney();
-		money = "$"+imon.getMoney();
 		fontRenderer.drawString(money, 178-fontRenderer.getStringWidth(money), ySize-94, 0x404040);
 	}
 
@@ -170,35 +172,84 @@ public class GuiShop extends GuiContainer {
 		}else if(button instanceof GuiButtonTab){
 			GuiButtonTab tabbutton = (GuiButtonTab) button;
 			tabbutton.selectButton();
-			switchBSTab(tabbutton);
+			if(tabbutton.isBSButton())
+				switchBSTab(tabbutton);
+			else if(tabbutton.isCategoryButton()){
+				switchCatTab(tabbutton);
+			}
 		}
 	}
 
 	private void switchBSTab(GuiButtonTab tabbutton){
-		if(tabbutton.id == BUY_BUTTON_ID){
+		if(tabbutton.isBuy()){
 			buyMode = true;
 			//Enable currently selected buy button tab
 			for(int i = 0; i < sellButtons.get(sellCat).length; i++){
 				sellButtons.get(sellCat)[i].enabled = false;
 				sellButtons.get(sellCat)[i].visible = false;
 			}
-
+			//Disable previously selected sell buttons
 			for(int i = 0; i < buyButtons.get(buyCat).length; i++){
-				buyButtons.get(sellCat)[i].enabled = true;
-				buyButtons.get(sellCat)[i].visible = true;
+				buyButtons.get(buyCat)[i].enabled = true;
+				buyButtons.get(buyCat)[i].visible = true;
 			}
-		}else if(tabbutton.id == SELL_BUTTON_ID){
+			//Disable previous category buttons
+			for(GuiButtonTab but : catSellButtons){
+				but.enabled = false;
+				but.visible = false;
+			}
+			//Enable current category buttons
+			for(GuiButtonTab but : catBuyButtons){
+				but.enabled = true;
+				but.visible = true;
+			}
+		}else if(tabbutton.isSell()){
 			buyMode = false;
-			//Enable currently selected sell button tab
+			//Disable previously selected shop buttons
 			for(int i = 0; i < buyButtons.get(buyCat).length; i++){
-				buyButtons.get(sellCat)[i].enabled = false;
-				buyButtons.get(sellCat)[i].visible = false;
+				buyButtons.get(buyCat)[i].enabled = false;
+				buyButtons.get(buyCat)[i].visible = false;
 			}
+			//Enable currently selected sell button tab
 			for(int i = 0; i < sellButtons.get(sellCat).length; i++){
 				sellButtons.get(sellCat)[i].enabled = true;
 				sellButtons.get(sellCat)[i].visible = true;
 			}
+			//Enable currently selected category buttons
+			for(GuiButtonTab but : catSellButtons){
+				but.enabled = true;
+				but.visible = true;
+			}
+			//Disable previously selected category buttons
+			for(GuiButtonTab but : catBuyButtons){
+				but.enabled = false;
+				but.visible = false;
+			}
 		}
+	}
+
+	private void switchCatTab(GuiButtonTab tabbutton){
+		GuiButtonShop [] newbuttons = null;
+		GuiButtonShop [] oldbuttons = null;
+		if(buyMode){ //Get buttons from buy button list
+			newbuttons = buyButtons.get(tabbutton.getCategory());
+			oldbuttons = buyButtons.get(buyCat);
+			buyCat = tabbutton.getCategory();
+		}else{
+			newbuttons = sellButtons.get(tabbutton.getCategory());
+			oldbuttons = sellButtons.get(sellCat);
+			sellCat = tabbutton.getCategory();
+		}
+
+		for(GuiButtonShop but : oldbuttons){
+			but.visible = false;
+			but.enabled = false;
+		}
+		for(GuiButtonShop but : newbuttons){
+			but.visible = true;
+			but.enabled = true;
+		}
+
 	}
 
 	private void buyItem(GuiButtonShop shopbutton){

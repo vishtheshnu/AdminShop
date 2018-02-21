@@ -1,4 +1,4 @@
-package com.vnator.adminshop.blocks.shop;
+package com.vnator.adminshop.utils;
 
 import com.vnator.adminshop.AdminShop;
 import net.minecraft.client.Minecraft;

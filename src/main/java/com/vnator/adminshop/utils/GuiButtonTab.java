@@ -1,10 +1,9 @@
-package com.vnator.adminshop.blocks.shop;
+package com.vnator.adminshop.utils;
 
 import com.vnator.adminshop.AdminShop;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 
 import java.util.*;
@@ -12,24 +11,26 @@ import java.util.*;
 public class GuiButtonTab extends GuiButton {
 
 	private static final ResourceLocation BACKGROUND = new ResourceLocation(AdminShop.MODID, "textures/gui/shopback.png");
-	private LinkedList<GuiButtonTab> groupMembers;
-	private ButtonGroup group;
-	private boolean isSelected;
-	private boolean isBSButton; //to determine which texture to draw
-	private String buttonText;
+	private static final int TYPE_BUY = 0;
+	private static final int TYPE_SELL = 1;
+
+	protected ButtonGroup group;
+	protected boolean isSelected;
+	protected boolean isBSButton; //to determine which texture to draw
+	protected String buttonText;
+	protected boolean isBuy;
+	protected boolean isSell;
+
+	protected boolean isCategoryButton;
+	protected int category;
 
 	public GuiButtonTab(int buttonId, int x, int y, String buttonText, boolean isBSButton, ButtonGroup group) {
 		super(buttonId, x, y, buttonText);
 		this.buttonText = buttonText;
-		groupMembers = new LinkedList<GuiButtonTab>();
 		isSelected = false;
 		this.isBSButton = isBSButton;
 		this.group = group;
 		group.addMember(this);
-	}
-
-	public void addGroupMember(GuiButtonTab but){
-		groupMembers.add(but);
 	}
 
 	public void selectButton(){
@@ -39,6 +40,8 @@ public class GuiButtonTab extends GuiButton {
 
 	@Override
 	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks){
+		if(!visible)
+			return;
 		GlStateManager.color(1, 1, 1, 1);
 		mc.getTextureManager().bindTexture(BACKGROUND);
 		if(isBSButton){
@@ -47,19 +50,35 @@ public class GuiButtonTab extends GuiButton {
 			else
 				drawTexturedModalRect(x, y, 195, 32, 25, 12);
 
-			drawCenteredString(mc.fontRenderer, buttonText, x+12, y, 0);
+			drawCenteredString(mc.fontRenderer, buttonText, x+12, y+2, 0xFFFFFF);
 		}else{
 			if(isSelected)
-				drawTexturedModalRect(x, y, 195, 0, 50, 16);
-			else
 				drawTexturedModalRect(x, y, 195, 16, 50, 16);
+			else
+				drawTexturedModalRect(x, y, 195, 0, 50, 16);
 
-			drawCenteredString(mc.fontRenderer, buttonText, x+25, y+8, 1);
+			drawCenteredString(mc.fontRenderer, buttonText, x+25, y+4, 0xFFFFFF);
 		}
 	}
 
 	public boolean isBSButton(){
 		return isBSButton;
+	}
+
+	public boolean isBuy(){
+		return isBuy;
+	}
+
+	public boolean isSell(){
+		return isSell;
+	}
+
+	public boolean isCategoryButton(){
+		return isCategoryButton;
+	}
+
+	public int getCategory(){
+		return category;
 	}
 
 	public static class ButtonGroup{
