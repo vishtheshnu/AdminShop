@@ -33,11 +33,8 @@ public class BlockShop extends BlockTileEntity<TileEntityShop> {
 									EnumFacing side, float hitX, float hitY, float hitZ){
 		if(!world.isRemote){
 			/*Open Gui*/
+			super.onBlockActivated(world, pos, state, player, hand, side, hitX, hitY, hitZ);
 			player.openGui(AdminShop.instance, ModGuiHandler.SHOP, world, pos.getX(), pos.getY(), pos.getZ());
-
-			IMoney money = player.getCapability(MoneyProvider.MONEY_CAPABILITY, null);
-			if(money == null)
-				System.err.println("\n\nMONEY IS NULL!!! WOW DUDE!\n\n");
 			//player.sendMessage(new TextComponentString("Player Money: "+money.getMoney()));
 		}
 		return true;

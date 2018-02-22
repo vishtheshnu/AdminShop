@@ -8,6 +8,7 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import org.apache.logging.log4j.Level;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -24,6 +25,8 @@ public class ShopStock {
 
 	public static String [] buyCategories;
 	public static String [] sellCategories;
+
+	public static HashMap<String, Float> sellItemMap = new HashMap<String, Float>();
 
 	public static void setShopCategories(String[] buyCats, String[] sellCats){
 		if(buyCats.length != 0)
@@ -56,7 +59,15 @@ public class ShopStock {
 		for(int i = 0; i < itemNames.size(); i++){
 			sellItems.add(new ItemStack[itemNames.get(i).length]);
 			for(int j = 0; j < itemNames.get(i).length; j++){
-				sellItems.get(i)[j] = parseItemString(itemNames.get(i)[j]);
+				String itemName = itemNames.get(i)[j];
+				sellItems.get(i)[j] = parseItemString(itemName);
+				AdminShop.logger.log(Level.INFO, "Sellable item: "+itemName);
+				if(itemName.split(":").length == 2)
+					itemName += ":0";
+				if(!sellItemMap.containsKey(itemName))
+					sellItemMap.put(itemName, itemPrices.get(i)[j]);
+				else
+					sellItemMap.put(itemName, Math.max(sellItemMap.get(itemName), itemPrices.get(i)[j]));
 			}
 		}
 	}
