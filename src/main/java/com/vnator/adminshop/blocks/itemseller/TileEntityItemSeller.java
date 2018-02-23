@@ -16,6 +16,8 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.fluids.FluidTank;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 import org.apache.logging.log4j.Level;
@@ -27,6 +29,7 @@ public class TileEntityItemSeller extends TileEntity implements ITickable {
 
 	private UUID player;
 
+	FluidTank tank = new FluidTank(16000);
 	private ItemStackHandler inventory = new ItemStackHandler(1){
 		@Override
 		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate){
@@ -47,8 +50,6 @@ public class TileEntityItemSeller extends TileEntity implements ITickable {
 			float money = ShopStock.sellItemMap.get(name)*item.getCount();
 			world.getPlayerEntityByUUID(player).getCapability(MoneyProvider.MONEY_CAPABILITY, null).deposit(money);
 			inventory.setStackInSlot(0, ItemStack.EMPTY);
-
-
 		}
 	}
 
@@ -71,13 +72,20 @@ public class TileEntityItemSeller extends TileEntity implements ITickable {
 
 	@Override
 	public boolean hasCapability(Capability<?> capability, @Nullable EnumFacing facing){
-		return capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY || super.hasCapability(capability, facing);
+		return capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY ||
+				capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY ||
+				super.hasCapability(capability, facing);
 	}
 
 	@Nullable
 	@Override
 	public <T> T getCapability(Capability<T> capability, @Nullable EnumFacing facing){
-		return capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY ? (T)inventory : super.getCapability(capability, facing);
+		if(capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
+			return (T)inventory;
+		else if(capability == CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY)
+			return (T)tank;
+		else
+			return super.getCapability(capability, facing);
 	}
 
 	public void setPlayer(UUID player){

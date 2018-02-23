@@ -24,6 +24,7 @@ import net.minecraftforge.items.ItemHandlerHelper;
 import org.apache.logging.log4j.Level;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class GuiShop extends GuiContainer {
 
@@ -152,6 +153,15 @@ public class GuiShop extends GuiContainer {
 		IMoney imon = shopUser.getCapability(MoneyProvider.MONEY_CAPABILITY, null);
 		String money = imon.getFormattedMoney();
 		fontRenderer.drawString(money, 178-fontRenderer.getStringWidth(money), ySize-94, 0x404040);
+
+		//Draw tooltips for hovered button
+		GuiButtonShop[] myarr = buyMode ? buyButtons.get(buyCat) : sellButtons.get(sellCat);
+		for(GuiButtonShop but : myarr){
+			//Check if mouse is over button
+			if(but.x < mouseX && but.x+but.width > mouseX && but.y < mouseY && but.y+but.height > mouseY){
+				drawHoveringText(but.getTooltipStrings(), mouseX-(width-xSize)/2, mouseY);
+			}
+		}
 	}
 
 	@Override

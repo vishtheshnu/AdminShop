@@ -11,16 +11,23 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import net.minecraftforge.items.ItemHandlerHelper;
 import org.apache.logging.log4j.Level;
+
+import java.util.LinkedList;
+import java.util.List;
 
 public class GuiButtonShop extends GuiButton {
 
-	private ItemStack item; //Amounts of 1, 16, and 64
+	private ItemStack item;
+	private ItemStack item1, item16, item64;//Amounts of 1, 16, and 64
 	public short category;
 	public int index;
 	private float price;
 	private boolean isBuying;
 	private RenderItem itemRender;
+
+	private LinkedList<String> ttl1, ttl16, ttl64;
 
 	/**
 	 * A GuiButton that can be clicked to initiate a buy or sell action.
@@ -38,6 +45,22 @@ public class GuiButtonShop extends GuiButton {
 		this.item = item;
 		this.isBuying = isBuying;
 		this.itemRender = itemRender;
+
+		ttl1 = new LinkedList<String>();
+		ttl1.add(item.getDisplayName());
+		ttl1.add("$"+getPrice(1));
+
+		ttl16 = new LinkedList<String>();
+		ttl16.add(item.getDisplayName());
+		ttl16.add("$"+getPrice(16));
+
+		ttl64 = new LinkedList<String>();
+		ttl64.add(item.getDisplayName());
+		ttl64.add("$"+getPrice(64));
+
+		item1 = item;
+		item16 = ItemHandlerHelper.copyStackWithSize(item, 16);
+		item64 = ItemHandlerHelper.copyStackWithSize(item, 64);
 
 		//Initialize ItemStacks from item
 		/*
@@ -65,7 +88,7 @@ public class GuiButtonShop extends GuiButton {
 
 
 	@Override
-	public void drawButton(Minecraft mc, int mouseX, int mouoseY, float partialTicks){
+	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks){
 		if(!visible)
 			return;
 		RenderHelper.enableGUIStandardItemLighting();
@@ -74,6 +97,24 @@ public class GuiButtonShop extends GuiButton {
 			drawString(mc.fontRenderer, "64", x+17-mc.fontRenderer.getStringWidth("64"), y+9, 0xFFFFFF);
 		}else if(GuiScreen.isCtrlKeyDown()){
 			drawString(mc.fontRenderer, "16", x+17-mc.fontRenderer.getStringWidth("16"), y+9, 0xFFFFFF);
+		}
+
+	}
+
+	/*
+	@Override
+	public void drawButtonForegroundLayer(int mouseX, int mouseY){
+
+	}
+	*/
+
+	public List<String> getTooltipStrings(){
+		if(GuiScreen.isShiftKeyDown()){
+			return ttl64;
+		}else if(GuiScreen.isCtrlKeyDown()){
+			return ttl16;
+		}else{
+			return ttl1;
 		}
 	}
 
@@ -93,12 +134,16 @@ public class GuiButtonShop extends GuiButton {
 		int quant = 1;
 		if(GuiScreen.isShiftKeyDown()){
 			quant = 64;
+			return item64;
 		}else if(GuiScreen.isCtrlKeyDown()){
 			quant = 16;
+			return item16;
+		}else{
+			return item;
 		}
 
-		System.out.println(item.getItem().getUnlocalizedName()+" : "+item.getMetadata());
-		return new ItemStack(item.getItem(), quant, item.getMetadata());
+		//System.out.println(item.getItem().getUnlocalizedName()+" : "+item.getMetadata());
+		//return new ItemStack(item.getItem(), quant, item.getMetadata());
 	}
 
 	public boolean isBuying(){
