@@ -1,4 +1,4 @@
-package com.vnator.adminshop.blocks.itemseller;
+package com.vnator.adminshop.blocks.seller;
 
 import com.vnator.adminshop.AdminShop;
 import com.vnator.adminshop.ModGuiHandler;
@@ -6,7 +6,6 @@ import com.vnator.adminshop.blocks.BlockTileEntity;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
@@ -14,25 +13,23 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
-import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 
 import javax.annotation.Nullable;
 
-public class BlockItemSeller extends BlockTileEntity<TileEntityItemSeller> {
+public class BlockSeller extends BlockTileEntity<TileEntitySeller> {
 
-	public BlockItemSeller(){super(Material.ROCK, "itemseller");}
+	public BlockSeller(){super(Material.ROCK, "seller");}
 
 	@Override
-	public Class<TileEntityItemSeller> getTileEntityClass() {
-		return TileEntityItemSeller.class;
+	public Class<TileEntitySeller> getTileEntityClass() {
+		return TileEntitySeller.class;
 	}
 
 	@Nullable
 	@Override
-	public TileEntityItemSeller createTileEntity(World world, IBlockState state) {
-		return new TileEntityItemSeller();
+	public TileEntitySeller createTileEntity(World world, IBlockState state) {
+		return new TileEntitySeller();
 	}
 
 	@Override
@@ -41,7 +38,7 @@ public class BlockItemSeller extends BlockTileEntity<TileEntityItemSeller> {
 
 		super.onBlockActivated(world, pos, state, player, hand, side, hitX, hitY, hitZ);
 		if(!world.isRemote){
-			TileEntityItemSeller ent = (TileEntityItemSeller) world.getTileEntity(pos);
+			TileEntitySeller ent = (TileEntitySeller) world.getTileEntity(pos);
 			if(ent.getPlayer() == null) {
 				ent.setPlayer(player.getName());
 				player.sendMessage(new TextComponentString("Registered Player to Item Seller!"));

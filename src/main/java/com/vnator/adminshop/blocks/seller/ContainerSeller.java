@@ -1,4 +1,4 @@
-package com.vnator.adminshop.blocks.itemseller;
+package com.vnator.adminshop.blocks.seller;
 
 import com.vnator.adminshop.blocks.shop.ShopStock;
 import net.minecraft.entity.player.EntityPlayer;
@@ -11,12 +11,10 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import net.minecraft.inventory.Container;
 
-import java.util.UUID;
-
-public class ContainerItemSeller extends Container {
+public class ContainerSeller extends Container {
 
 
-	public ContainerItemSeller(InventoryPlayer playerInv, final TileEntityItemSeller seller){
+	public ContainerSeller(InventoryPlayer playerInv, final TileEntitySeller seller){
 		IItemHandler inventory = seller.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.NORTH);
 		addSlotToContainer(new SlotItemHandler(inventory, 0, 80, 35){
 			@Override

@@ -1,18 +1,8 @@
-package com.vnator.adminshop.blocks.itemseller;
+package com.vnator.adminshop.blocks.seller;
 
-import com.vnator.adminshop.AdminShop;
 import com.vnator.adminshop.ConfigHandler;
 import com.vnator.adminshop.blocks.shop.ShopStock;
 import com.vnator.adminshop.capabilities.BalanceAdapter;
-import com.vnator.adminshop.capabilities.ledger.LedgerProvider;
-import com.vnator.adminshop.capabilities.money.MoneyProvider;
-import com.vnator.adminshop.packets.PacketHandler;
-import com.vnator.adminshop.packets.PacketUpdateMoney;
-import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -20,7 +10,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.energy.CapabilityEnergy;
-import net.minecraftforge.energy.EnergyStorage;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTank;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
@@ -28,12 +17,10 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
-import org.apache.logging.log4j.Level;
 
 import javax.annotation.Nullable;
-import java.util.UUID;
 
-public class TileEntityItemSeller extends TileEntity implements ITickable, IFluidHandler{
+public class TileEntitySeller extends TileEntity implements ITickable, IFluidHandler{
 
 	private String player;
 

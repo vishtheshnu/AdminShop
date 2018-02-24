@@ -1,8 +1,8 @@
 package com.vnator.adminshop;
 
-import com.vnator.adminshop.blocks.itemseller.ContainerItemSeller;
-import com.vnator.adminshop.blocks.itemseller.GuiItemSeller;
-import com.vnator.adminshop.blocks.itemseller.TileEntityItemSeller;
+import com.vnator.adminshop.blocks.seller.ContainerSeller;
+import com.vnator.adminshop.blocks.seller.GuiSeller;
+import com.vnator.adminshop.blocks.seller.TileEntitySeller;
 import com.vnator.adminshop.blocks.pedestal.ContainerPedestal;
 import com.vnator.adminshop.blocks.pedestal.GuiPedestal;
 import com.vnator.adminshop.blocks.pedestal.TileEntityPedestal;
@@ -32,7 +32,7 @@ public class ModGuiHandler implements IGuiHandler {
 				System.err.println("Opening Shop GUI!");
 				return new ContainerShop(player.inventory, (TileEntityShop)world.getTileEntity(new BlockPos(x, y, z)));
 			case SELLER:
-				return new ContainerItemSeller(player.inventory, (TileEntityItemSeller)world.getTileEntity(new BlockPos(x, y, z)));
+				return new ContainerSeller(player.inventory, (TileEntitySeller)world.getTileEntity(new BlockPos(x, y, z)));
 			default:
 				return null;
 		}
@@ -47,7 +47,7 @@ public class ModGuiHandler implements IGuiHandler {
 			case SHOP:
 				return new GuiShop(getServerGuiElement(ID, player, world, x, y, z), player);
 			case SELLER:
-				return new GuiItemSeller(getServerGuiElement(ID, player, world, x, y, z), player.inventory, (TileEntityItemSeller) world.getTileEntity(new BlockPos(x, y, z)));
+				return new GuiSeller(getServerGuiElement(ID, player, world, x, y, z), player.inventory, (TileEntitySeller) world.getTileEntity(new BlockPos(x, y, z)));
 			default:
 				return null;
 		}

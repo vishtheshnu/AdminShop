@@ -1,8 +1,7 @@
-package com.vnator.adminshop.blocks.itemseller;
+package com.vnator.adminshop.blocks.seller;
 
 import com.vnator.adminshop.AdminShop;
 import com.vnator.adminshop.ModBlocks;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.resources.I18n;
@@ -10,17 +9,17 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.util.ResourceLocation;
 
-public class GuiItemSeller extends GuiContainer {
+public class GuiSeller extends GuiContainer {
 
-	private static final ResourceLocation BG_TEXTURE = 	new ResourceLocation(AdminShop.MODID, "textures/gui/itemseller.png");
+	private static final ResourceLocation BG_TEXTURE = 	new ResourceLocation(AdminShop.MODID, "textures/gui/seller.png");
 	private InventoryPlayer playerInv;
 	private String owner;
 
-	public GuiItemSeller(Container inventorySlotsIn, InventoryPlayer playerInv, TileEntityItemSeller te) {
+	public GuiSeller(Container inventorySlotsIn, InventoryPlayer playerInv, TileEntitySeller te) {
 		super(inventorySlotsIn);
 		this.playerInv = playerInv;
 		this.owner = "Insert or pipe in items to sell";
-		//this.owner = "Owned by: "+Minecraft.getMinecraft().world.getPlayerEntityByUUID(((ContainerItemSeller)inventorySlotsIn).owner).getName();
+		//this.owner = "Owned by: "+Minecraft.getMinecraft().world.getPlayerEntityByUUID(((ContainerSeller)inventorySlotsIn).owner).getName();
 	}
 
 	@Override

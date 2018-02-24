@@ -1,4 +1,4 @@
-package com.vnator.adminshop.blocks.itemseller;
+package com.vnator.adminshop.blocks.seller;
 
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.energy.EnergyStorage;
