@@ -7,8 +7,13 @@ import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTException;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.templates.FluidHandlerConcatenate;
+import net.minecraftforge.fluids.capability.templates.FluidHandlerFluidMap;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,7 +34,11 @@ public class ShopStock {
 	public static String [] buyCategories;
 	public static String [] sellCategories;
 
+	public static FluidStack [] buyFluids;
+	public static float [] buyFluidPrices;
+
 	public static HashMap<String, Float> sellItemMap = new HashMap<String, Float>();
+	public static HashMap<String, Float> sellFluidMap = new HashMap<String, Float>();
 
 	public static void setShopCategories(String[] buyCats, String[] sellCats){
 		if(buyCats.length != 0)
@@ -65,14 +74,46 @@ public class ShopStock {
 				String itemName = itemNames.get(i)[j];
 				sellItems.get(i)[j] = parseItemString(itemName);
 				AdminShop.logger.log(Level.INFO, "Sellable item: "+itemName);
-				if(itemName.split(":").length == 2)
-					itemName += ":0";
-				if(!sellItemMap.containsKey(itemName))
-					sellItemMap.put(itemName, itemPrices.get(i)[j]);
+
+				ItemStack stack = sellItems.get(i)[j];
+				String myname = stack.getItem().getRegistryName() + ":" + stack.getMetadata();
+				if(stack.getTagCompound() != null)
+					myname += " "+stack.getTagCompound().toString();
+				if(!sellItemMap.containsKey(myname))
+					sellItemMap.put(myname, itemPrices.get(i)[j]);
 				else
-					sellItemMap.put(itemName, Math.max(sellItemMap.get(itemName), itemPrices.get(i)[j]));
+					sellItemMap.put(myname, Math.max(sellItemMap.get(myname), itemPrices.get(i)[j]));
 			}
 		}
+	}
+	public static void setShopLiquids(String [] buyNames, float [] buyPrices, String [] sellNames, float [] sellPrices){
+		buyFluids = new FluidStack[buyNames.length];
+		for(int i = 0; i < buyNames.length; i++){
+			buyFluids[i] = parseFluidString(buyNames[i]);
+		}
+		buyFluidPrices = buyPrices;
+
+		for(int i = 0; i < sellNames.length; i++){
+			sellFluidMap.put(sellNames[i], sellPrices[i]);
+		}
+	}
+
+	private static FluidStack parseFluidString(String s){
+		String [] split = s.split(" ");
+
+		NBTTagCompound tag = new NBTTagCompound();
+
+		if(split.length == 2){ //NBT present
+			try {
+				tag = JsonToNBT.getTagFromJson(split[1]);
+			}catch (NBTException e){
+				AdminShop.logger.log(Level.ERROR, "Improperly formatted fluid nbt: "+s);
+			}
+		}else if(split.length > 2){
+			AdminShop.logger.log(Level.ERROR, "Improperly formatted fluid nbt: "+s);
+		}
+
+		return new FluidStack(FluidRegistry.getFluid(split[0]), 1, tag);
 	}
 
 	private static ItemStack parseItemString(String s){

@@ -27,6 +27,10 @@ public class ContainerItemSeller extends Container {
 			@Override
 			public boolean isItemValid(ItemStack stack){
 				String id = stack.getItem().getRegistryName() + ":" + stack.getMetadata();
+				if(stack.getTagCompound() != null) {
+					id += " " + stack.getTagCompound().toString();
+					System.out.println(id);
+				}
 				return ShopStock.sellItemMap.containsKey(id);
 			}
 		});

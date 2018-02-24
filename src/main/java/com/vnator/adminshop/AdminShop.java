@@ -2,6 +2,7 @@ package com.vnator.adminshop;
 
 import com.google.common.eventbus.Subscribe;
 import com.vnator.adminshop.blocks.shop.ShopStock;
+import com.vnator.adminshop.capabilities.BalanceAdapter;
 import com.vnator.adminshop.capabilities.money.MoneyProvider;
 import com.vnator.adminshop.client.AdminshopTab;
 import com.vnator.adminshop.packets.PacketHandler;
@@ -13,6 +14,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -22,6 +24,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
@@ -67,17 +70,22 @@ public class AdminShop
 
 		//Register items into ShopStock
 		registerShopStock();
+
+		//Test
+		logger.log(Level.INFO, "Water = "+ FluidRegistry.LAVA.getName());
 	}
 
 	private void registerShopStock(){
 		ShopStock.setShopCategories(ConfigHandler.All_Shop_Categories.buyCategories, ConfigHandler.All_Shop_Categories.sellCategories);
 		ShopStock.setShopStockBuy(ConfigHandler.createStringListBuy(), ConfigHandler.createPriceListBuy());
 		ShopStock.setShopStockSell(ConfigHandler.createStringListSell(), ConfigHandler.createPriceListSell());
+		ShopStock.setShopLiquids(ConfigHandler.Buyable_Items.liquids, ConfigHandler.Buyable_Items.liquidPrices,
+				ConfigHandler.Sellable_Items.liquids, ConfigHandler.Sellable_Items.liquidPrices);
 	}
 
 	@SubscribeEvent
 	public static void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event){
-		float money = event.player.getCapability(MoneyProvider.MONEY_CAPABILITY, null).getMoney();
+		float money = BalanceAdapter.getMoneyServer((EntityPlayerMP) event.player);//event.player.getCapability(MoneyProvider.MONEY_CAPABILITY, null).getMoney();
 		PacketHandler.INSTANCE.sendTo(new PacketUpdateMoney(money), (EntityPlayerMP)event.player);
 	}
 

@@ -33,7 +33,12 @@ public class ConfigHandler {
 	}
 
 	public static class GeneralCategory{
+		@Config.Comment({"How much money each player starts with"})
 		public float startingMoney = 100f;
+		@Config.Comment({"Minimum mb sold by Seller at a time. Smaller values = more lag"})
+		public int liquidSellPacketSize = 100;
+		@Config.Comment({"Minimum power sold by Seller at a time. Smaller values = more lag"})
+		public int powerSellPacketSize = 1000;
 	}
 
 	public static class ConfigCategory{
@@ -54,6 +59,11 @@ public class ConfigHandler {
 
 		public String [] category4Items = new String[]{"minecraft:cobblestone"};
 		public float [] category4Prices = new float[]{1};
+
+		@Config.Comment({"List of liquid names. Eg. \"lava\""})
+		public String [] liquids = new String[]{"lava"};
+		@Config.Comment({"Price per millibucket (1/1000 of a bucket)"})
+		public float [] liquidPrices = new float[]{0.05f};
 	}
 
 	public static class ConfigSellItems{
@@ -68,6 +78,13 @@ public class ConfigHandler {
 
 		public String [] category4Items = new String[]{"minecraft:stone"};
 		public float [] category4Prices = new float[]{1};
+
+		@Config.Comment({"List of liquid names. Eg. \"lava\""})
+		public String [] liquids = new String[]{"lava"};
+		@Config.Comment({"Price per millibucket (1/1000 of a bucket)"})
+		public float [] liquidPrices = new float[]{0.05f};
+		@Config.Comment({"Price per forge energy unit"})
+		public float forgeEnergyPrice = 0.1f;
 	}
 
 	public static ArrayList<String[]> createStringListBuy(){

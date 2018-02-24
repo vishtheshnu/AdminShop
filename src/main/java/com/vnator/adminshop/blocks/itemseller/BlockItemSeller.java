@@ -6,11 +6,17 @@ import com.vnator.adminshop.blocks.BlockTileEntity;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidUtil;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 
 import javax.annotation.Nullable;
 
@@ -49,7 +55,18 @@ public class BlockItemSeller extends BlockTileEntity<TileEntityItemSeller> {
 						"This block is registered to "+ent.getPlayer()));
 			}
 
-			player.openGui(AdminShop.instance, ModGuiHandler.SELLER, world, pos.getX(), pos.getY(), pos.getZ());
+			IFluidHandlerItem handler = FluidUtil.getFluidHandler(player.getHeldItem(hand));//.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null);
+			if(handler != null){
+				//Put liquid into tank
+				FluidStack liquid = handler.drain(1000, false);
+				if(liquid != null && ent.fill(liquid, false) == 1000){
+					ent.fill(handler.drain(1000, true), true);
+					player.setHeldItem(hand, handler.getContainer());
+				}
+			}else{
+				player.openGui(AdminShop.instance, ModGuiHandler.SELLER, world, pos.getX(), pos.getY(), pos.getZ());
+			}
+			//player.sendMessage(new TextComponentString("liquid in tank: "+ent.tank.getFluid().getFluid().getName()+" x"+ent.tank.getFluidAmount()));
 		}
 		return true;
 	}
