@@ -7,6 +7,8 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.RenderItem;
+import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -108,14 +110,18 @@ public class GuiButtonShop extends GuiButton {
 	}
 	*/
 
-	public List<String> getTooltipStrings(){
+	public List<String> getTooltipStrings(EntityPlayer player){
+
+		int quant = 1;
 		if(GuiScreen.isShiftKeyDown()){
-			return ttl64;
+			quant = 64;
 		}else if(GuiScreen.isCtrlKeyDown()){
-			return ttl16;
-		}else{
-			return ttl1;
+			quant = 16;
 		}
+		List<String> toret = item.getTooltip(player, ITooltipFlag.TooltipFlags.NORMAL);
+		toret.add("");
+		toret.add("$"+quant*price);
+		return toret;
 	}
 
 	/**

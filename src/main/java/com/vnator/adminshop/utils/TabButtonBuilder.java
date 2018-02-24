@@ -7,7 +7,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
  * Factory class that generates GuiButtonTab instances depending on chosen parameters
  */
 @SideOnly(Side.CLIENT)
-public class TabButtonFactory {
+public class TabButtonBuilder {
 
 	public static final int TYPE_BUYSELL = 0;
 	public static final int TYPE_CATEGORY = 1;

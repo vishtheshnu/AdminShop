@@ -44,6 +44,12 @@ public class TileEntityItemSeller extends TileEntity implements ITickable {
 	@Override
 	public void update() {
 		if(!world.isRemote && player != null && !inventory.getStackInSlot(0).isEmpty()){
+			//Check if player is accessible
+			if(world.getPlayerEntityByUUID(player) == null){
+				player = null;
+				return;
+			}
+
 			//Sell the item
 			ItemStack item = inventory.getStackInSlot(0);
 			String name = item.getItem().getRegistryName() + ":" + item.getMetadata();
@@ -63,10 +69,15 @@ public class TileEntityItemSeller extends TileEntity implements ITickable {
 	@Override
 	public void readFromNBT(NBTTagCompound compound){
 		inventory.deserializeNBT(compound.getCompoundTag("inventory"));
-		player = UUID.fromString(compound.getString("player"));
-		System.out.println("Reading NBT for ItemSeller! playerID string = "+compound.getString("player"));
-		if(world.getPlayerEntityByUUID(player) == null)
+		try {
+			player = UUID.fromString(compound.getString("player"));
+		}catch (IllegalArgumentException e){
+			AdminShop.logger.log(Level.INFO, "No player saved to itemSeller. Setting player to null");
 			player = null;
+		}
+		System.out.println("Reading NBT for ItemSeller! playerID string = "+compound.getString("player"));
+		//if(world.getPlayerEntityByUUID(player) == null)
+		//	player = null;
 		super.readFromNBT(compound);
 	}
 

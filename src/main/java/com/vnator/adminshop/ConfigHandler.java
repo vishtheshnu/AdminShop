@@ -16,6 +16,8 @@ import java.util.ArrayList;
 @Mod.EventBusSubscriber
 public class ConfigHandler {
 
+	@Config.Comment({"General Config"})
+	public static GeneralCategory GENERAL_CONFIGS = new GeneralCategory();
 	@Config.Comment({"Shop Categories (Max 4 for each)"})
 	public static ConfigCategory All_Shop_Categories = new ConfigCategory();
 	@Config.Comment({"Buyable items and matching prices (max 42 per category)"})
@@ -30,12 +32,17 @@ public class ConfigHandler {
 		}
 	}
 
+	public static class GeneralCategory{
+		public float startingMoney = 100f;
+	}
+
 	public static class ConfigCategory{
 		public String [] buyCategories = new String[]{"DEFAULT"};
 		public String [] sellCategories = new String[]{"DEFAULT"};
 	}
 
 	public static class ConfigBuyItems{
+		@Config.Comment({"Format for each line: \"modid:itemName:metadata {nbtJSON}\" where \":metadata\" and \"{nbtJSON}\" are optional"})
 		public String [] category1Items = new String[]{"minecraft:cobblestone", "minecraft:coal:1"};
 		public float [] category1Prices = new float[]{1, 5};
 

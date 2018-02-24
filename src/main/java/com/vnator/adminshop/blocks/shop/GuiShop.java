@@ -8,7 +8,7 @@ import com.vnator.adminshop.packets.PacketHandler;
 import com.vnator.adminshop.packets.PacketSendShopTransaction;
 import com.vnator.adminshop.utils.GuiButtonShop;
 import com.vnator.adminshop.utils.GuiButtonTab;
-import com.vnator.adminshop.utils.TabButtonFactory;
+import com.vnator.adminshop.utils.TabButtonBuilder;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -24,7 +24,6 @@ import net.minecraftforge.items.ItemHandlerHelper;
 import org.apache.logging.log4j.Level;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 
 public class GuiShop extends GuiContainer {
 
@@ -64,10 +63,10 @@ public class GuiShop extends GuiContainer {
 		int buttonCounter = 0;
 
 		//Create Buy and Sell Buttons
-		GuiButtonTab buyTab = TabButtonFactory.createBuySellButton(x+8, y+4, "Buy", true);//new GuiButtonTab(BUY_BUTTON_ID, x+8, y+4, "Buy", true, bsgroup);
+		GuiButtonTab buyTab = TabButtonBuilder.createBuySellButton(x+8, y+4, "Buy", true);//new GuiButtonTab(BUY_BUTTON_ID, x+8, y+4, "Buy", true, bsgroup);
 		buyTab.selectButton();
 		buttonList.add(buyTab);
-		GuiButtonTab sellTab = TabButtonFactory.createBuySellButton(x+33, y+4, "Sell", false);//new GuiButtonTab(SELL_BUTTON_ID, x+33, y+4, "Sell", true, bsgroup);
+		GuiButtonTab sellTab = TabButtonBuilder.createBuySellButton(x+33, y+4, "Sell", false);//new GuiButtonTab(SELL_BUTTON_ID, x+33, y+4, "Sell", true, bsgroup);
 		buttonList.add(sellTab);
 
 		buttonCounter = 2;
@@ -75,16 +74,16 @@ public class GuiShop extends GuiContainer {
 		//Create Category Tab Buttons
 		catBuyButtons = new GuiButtonTab[Math.min(ShopStock.buyItems.size(), ShopStock.buyCategories.length)];
 		for(int i = 0; i < catBuyButtons.length; i++){
-			catBuyButtons[i] = TabButtonFactory.createCategoryButton(x+9, y+17+18*i, ShopStock.buyCategories[i], i);//new GuiButtonTab(buttonCounter+i, 9, 17+18*i, ShopStock.buyCategories[i], false, buygroup);
+			catBuyButtons[i] = TabButtonBuilder.createCategoryButton(x+9, y+17+18*i, ShopStock.buyCategories[i], i);//new GuiButtonTab(buttonCounter+i, 9, 17+18*i, ShopStock.buyCategories[i], false, buygroup);
 			buttonList.add(catBuyButtons[i]);
 		}
 		if(catBuyButtons.length > 0) catBuyButtons[0].selectButton();
 		buttonCounter += catBuyButtons.length;
 
 		catSellButtons = new GuiButtonTab[Math.min(ShopStock.sellItems.size(), ShopStock.sellCategories.length)];
-		TabButtonFactory.createNewGroup();
+		TabButtonBuilder.createNewGroup();
 		for(int i = 0; i < catSellButtons.length; i++){
-			catSellButtons[i] = TabButtonFactory.createCategoryButton(x+9, y+17+18*i, ShopStock.sellCategories[i], i);//new GuiButtonTab(buttonCounter+i, 9, 17+18*i, ShopStock.sellCategories[i], false, sellgroup);
+			catSellButtons[i] = TabButtonBuilder.createCategoryButton(x+9, y+17+18*i, ShopStock.sellCategories[i], i);//new GuiButtonTab(buttonCounter+i, 9, 17+18*i, ShopStock.sellCategories[i], false, sellgroup);
 			catSellButtons[i].enabled = false;
 			catSellButtons[i].visible = false;
 			buttonList.add(catSellButtons[i]);
@@ -159,7 +158,7 @@ public class GuiShop extends GuiContainer {
 		for(GuiButtonShop but : myarr){
 			//Check if mouse is over button
 			if(but.x < mouseX && but.x+but.width > mouseX && but.y < mouseY && but.y+but.height > mouseY){
-				drawHoveringText(but.getTooltipStrings(), mouseX-(width-xSize)/2, mouseY);
+				drawHoveringText(but.getTooltipStrings(shopUser), mouseX-(width-xSize)/2, mouseY);
 			}
 		}
 	}

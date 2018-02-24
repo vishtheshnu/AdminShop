@@ -1,5 +1,8 @@
 package com.vnator.adminshop.proxy;
 
+import com.vnator.adminshop.capabilities.ledger.ILedger;
+import com.vnator.adminshop.capabilities.ledger.LedgerFactory;
+import com.vnator.adminshop.capabilities.ledger.LedgerStorage;
 import com.vnator.adminshop.capabilities.money.IMoney;
 import com.vnator.adminshop.capabilities.money.MoneyFactory;
 import com.vnator.adminshop.capabilities.money.MoneyStorage;
@@ -24,6 +27,7 @@ public class CommonProxy {
         //ConfigHandler.readConfig();
 		PacketHandler.registerMessages("AdminShop");
         CapabilityManager.INSTANCE.register(IMoney.class, new MoneyStorage(), new MoneyFactory());
+        CapabilityManager.INSTANCE.register(ILedger.class, new LedgerStorage(), new LedgerFactory());
     }
 
     public void init(FMLInitializationEvent e){

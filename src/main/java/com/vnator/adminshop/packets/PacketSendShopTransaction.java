@@ -2,11 +2,18 @@ package com.vnator.adminshop.packets;
 
 import com.vnator.adminshop.AdminShop;
 import com.vnator.adminshop.ConfigHandler;
+import com.vnator.adminshop.blocks.shop.ShopStock;
+import com.vnator.adminshop.capabilities.BalanceAdapter;
+import com.vnator.adminshop.capabilities.ledger.LedgerProvider;
 import com.vnator.adminshop.capabilities.money.MoneyProvider;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -15,6 +22,7 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
+import net.minecraftforge.items.ItemStackHandler;
 import org.apache.logging.log4j.Level;
 
 /**
@@ -66,84 +74,33 @@ public class PacketSendShopTransaction implements IMessage {
 			System.out.println("Handling transaction message!");
 			//Get the item
 			ItemStack transactionStack = ItemStack.EMPTY;
-			if(message.toBuy){ //Buying
-				String itemName;
-				float price = 0;
-				switch (message.category){
-					case 0:
-						itemName = ConfigHandler.Buyable_Items.category1Items[message.index];
-						transactionStack = translateItemStack(itemName, message.quantity);
-						price = ConfigHandler.Buyable_Items.category1Prices[message.index];
-						break;
-					case 1: itemName = ConfigHandler.Buyable_Items.category2Items[message.index];
-						transactionStack = translateItemStack(itemName, message.quantity);
-						price = ConfigHandler.Buyable_Items.category2Prices[message.index];
-						break;
-					case 2: itemName = ConfigHandler.Buyable_Items.category3Items[message.index];
-						transactionStack = translateItemStack(itemName, message.quantity);
-						price = ConfigHandler.Buyable_Items.category3Prices[message.index];
-						break;
-					case 3: itemName = ConfigHandler.Buyable_Items.category4Items[message.index];
-						transactionStack = translateItemStack(itemName, message.quantity);
-						price = ConfigHandler.Buyable_Items.category4Prices[message.index];
-						break;
-				}
-				buyTransaction(ctx.getServerHandler().player, transactionStack, price);
-			}else{ //Selling
-				String itemName;
-				float price = 0;
-				switch (message.category){
-					case 0:
-						itemName = ConfigHandler.Sellable_Items.category1Items[message.index];
-						transactionStack = translateItemStack(itemName, message.quantity);
-						price = ConfigHandler.Sellable_Items.category1Prices[message.index];
-						break;
-					case 1: itemName = ConfigHandler.Sellable_Items.category2Items[message.index];
-						transactionStack = translateItemStack(itemName, message.quantity);
-						price = ConfigHandler.Sellable_Items.category2Prices[message.index];
-						break;
-					case 2: itemName = ConfigHandler.Sellable_Items.category3Items[message.index];
-						transactionStack = translateItemStack(itemName, message.quantity);
-						price = ConfigHandler.Sellable_Items.category3Prices[message.index];
-						break;
-					case 3: itemName = ConfigHandler.Sellable_Items.category4Items[message.index];
-						transactionStack = translateItemStack(itemName, message.quantity);
-						price = ConfigHandler.Sellable_Items.category4Prices[message.index];
-						break;
-				}
-				sellTransaction(ctx.getServerHandler().player, transactionStack, price);
-			}
-			PacketHandler.INSTANCE.sendTo(new PacketUpdateMoney(
-					ctx.getServerHandler().player.getCapability(MoneyProvider.MONEY_CAPABILITY, null).getMoney()
-			), ctx.getServerHandler().player);
-		}
+			ItemStack tempItem = message.toBuy ? ShopStock.buyItems.get(message.category)[message.index] :
+					ShopStock.sellItems.get(message.category)[message.index];
+			transactionStack = ItemHandlerHelper.copyStackWithSize(tempItem, message.quantity);//new ItemStack(tempItem.getItem(), message.quantity, tempItem.getMetadata(), tempItem.getTagCompound());
+			AdminShop.logger.log(Level.INFO, "Exchanged Item NBT: "+transactionStack.serializeNBT());
+			float price = message.toBuy ? ShopStock.buyItemPrices.get(message.category)[message.index] :
+					ShopStock.sellItemPrices.get(message.category)[message.index];
 
-		private ItemStack translateItemStack(String s, int quant) {
-			String[] parts = s.split(":");
-			if (parts.length == 2){
-				return new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(s)), quant, 0);
-			}
-			else if(parts.length == 3){
-				String name = parts[0]+":"+parts[1];
-				int meta = 0;
-				try {
-					meta = Integer.parseInt(parts[2]);
-				}catch (NumberFormatException e){
-					AdminShop.logger.log(Level.ERROR, "Item string improperly formatted! "+s);
-					return ItemStack.EMPTY;
-				}
-				return new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(name)), quant, meta);
-			}
-			AdminShop.logger.log(Level.ERROR, "Item string improperly formatted! "+s);
-			return ItemStack.EMPTY;
+			//Perform the transaction
+			if(message.toBuy)
+				buyTransaction(ctx.getServerHandler().player, transactionStack, price);
+			else
+				sellTransaction(ctx.getServerHandler().player, transactionStack, price);
+
+			//Update client with new balance
+			EntityPlayerMP player = ctx.getServerHandler().player;
+			PacketHandler.INSTANCE.sendTo(new PacketUpdateMoney(
+					BalanceAdapter.getMoneyServer(player)
+			), player);
 		}
 
 		private void buyTransaction(EntityPlayer player, ItemStack toBuy, float price){
 			IItemHandler inventory = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
 			ItemStack returned = ItemHandlerHelper.insertItemStacked(inventory, toBuy, true);
 			price = (toBuy.getCount() - returned.getCount())*price;
-			boolean success = player.getCapability(MoneyProvider.MONEY_CAPABILITY, null)
-					.withdraw(price);
+			boolean success = BalanceAdapter.withdraw(player, price);
+			//player.world.getCapability(LedgerProvider.LEDGER_CAPABILITY, null)
+			//		.withdraw(player.getName(), price);
 			if(success){
 				//Send money into player inventory
 				//ItemHandlerHelper.giveItemToPlayer(player, toBuy);
@@ -158,7 +115,8 @@ public class PacketSendShopTransaction implements IMessage {
 			IItemHandler inventory = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
 			int numSold = removeItemsFromInventory(inventory, toSell);
 			System.out.println("Removed "+numSold+" from inventory!");
-			player.getCapability(MoneyProvider.MONEY_CAPABILITY, null).deposit(price*numSold);
+			BalanceAdapter.deposit(player, price*numSold);
+			//player.getCapability(MoneyProvider.MONEY_CAPABILITY, null).deposit(price*numSold);
 		}
 
 		/**
@@ -172,7 +130,7 @@ public class PacketSendShopTransaction implements IMessage {
 			System.out.println("Removing items from inventory! # to remove: "+count);
 			for(int i = 0; i < inv.getSlots(); i++){
 				ItemStack comp = inv.getStackInSlot(i);
-				if(comp.getItem().equals(item.getItem())){ //Found items we can remove
+				if(itemstacksEqual(comp, item)){ //Found items we can remove
 					if(count > comp.getCount()){ //Remove entirety of this stack
 						count -= comp.getCount();
 						inv.extractItem(i, comp.getCount(), false);
@@ -185,6 +143,19 @@ public class PacketSendShopTransaction implements IMessage {
 
 			//Removed as much as possible, return count
 			return item.getCount() - count;
+		}
+
+		private boolean itemstacksEqual(ItemStack a, ItemStack b){
+			if(a.getItem() == b.getItem() && a.getMetadata() == b.getMetadata()) {
+				NBTTagCompound atag = a.getTagCompound();
+				NBTTagCompound btag = b.getTagCompound();
+				if(atag == null && btag == null)
+					return true;
+				if(atag != btag && atag != null)
+					if (a.getTagCompound().equals(b.getTagCompound()))
+						return true;
+			}
+			return false;
 		}
 	}
 }

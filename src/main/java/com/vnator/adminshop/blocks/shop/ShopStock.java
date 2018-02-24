@@ -3,6 +3,9 @@ package com.vnator.adminshop.blocks.shop;
 import com.vnator.adminshop.AdminShop;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.JsonToNBT;
+import net.minecraft.nbt.NBTException;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import org.apache.logging.log4j.Level;
@@ -79,10 +82,27 @@ public class ShopStock {
 		if(s.charAt(s.length()-1) == '>')
 			s = s.substring(0, s.length()-1);
 
+		NBTTagCompound nbt = null;
+		//Retrieve NBT
+		if(s.contains("{")){
+			AdminShop.logger.log(Level.INFO, "Parsing item with NBT!");
+			String nbtText = s.substring(s.indexOf('{'), s.lastIndexOf('}'));
+			nbtText += '}';
+			try {
+				nbt = JsonToNBT.getTagFromJson(nbtText);
+			}catch (NBTException e){
+				AdminShop.logger.log(Level.ERROR, "Improperly formatted NBT in config!\n"+s);
+			}
+			s = s.substring(0, s.indexOf('{'));
+			s = s.trim();
+			AdminShop.logger.log(Level.INFO, "Split Strings:\n"+s+"\n"+nbtText);
+		}
+
 		//Parse String
+		ItemStack toret = ItemStack.EMPTY;
 		String[] parts = s.split(":");
 		if (parts.length == 2){
-			return new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(s)), 1, 0);
+			toret = new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(s)), 1, 0, nbt);
 		}
 		else if(parts.length == 3){
 			String name = parts[0]+":"+parts[1];
@@ -93,11 +113,20 @@ public class ShopStock {
 				AdminShop.logger.log(Level.ERROR, "Item string metadata improperly formatted! "+s);
 				return ItemStack.EMPTY;
 			}
-			return new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(name)), 1, meta);
+			toret = new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(name)), 1, meta, nbt);
+		}else {
+			AdminShop.logger.log(Level.ERROR, "Item string improperly formatted! " +
+					"Improper number of fields separated by colons! " + s);
+			return ItemStack.EMPTY;
 		}
-		AdminShop.logger.log(Level.ERROR, "Item string improperly formatted! " +
-				"Improper number of fields separated by colons! "+s);
-		return ItemStack.EMPTY;
+
+		//Merge custom nbt with toret's current nbt tag
+		//for(String key : nbt.getKeySet()){
+		if(nbt != null)
+			toret.setTagCompound(nbt);
+		//}
+		AdminShop.logger.log(Level.INFO, "Item NBT: "+toret.getTagCompound());
+		return toret;
 	}
 
 }
