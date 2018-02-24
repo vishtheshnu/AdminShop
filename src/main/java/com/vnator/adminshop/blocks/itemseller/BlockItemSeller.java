@@ -37,15 +37,16 @@ public class BlockItemSeller extends BlockTileEntity<TileEntityItemSeller> {
 		if(!world.isRemote){
 			TileEntityItemSeller ent = (TileEntityItemSeller) world.getTileEntity(pos);
 			if(ent.getPlayer() == null) {
-				ent.setPlayer(player.getUniqueID());
+				ent.setPlayer(player.getName());
 				player.sendMessage(new TextComponentString("Registered Player to Item Seller!"));
 				ent.markDirty();
 			}
 
-			if(ent.getPlayer().equals(player.getUniqueID())){
+			if(ent.getPlayer().equals(player.getName())){
 				player.sendMessage(new TextComponentString("You are the registered owner of this block."));
 			}else{
-				player.sendMessage(new TextComponentString("WARNING: You will lose items by inserting them into this block."));
+				player.sendMessage(new TextComponentString("WARNING: You will lose any items inserted. " +
+						"This block is registered to "+ent.getPlayer()));
 			}
 
 			player.openGui(AdminShop.instance, ModGuiHandler.SELLER, world, pos.getX(), pos.getY(), pos.getZ());

@@ -2,6 +2,8 @@ package com.vnator.adminshop.blocks.itemseller;
 
 import com.vnator.adminshop.AdminShop;
 import com.vnator.adminshop.blocks.shop.ShopStock;
+import com.vnator.adminshop.capabilities.BalanceAdapter;
+import com.vnator.adminshop.capabilities.ledger.LedgerProvider;
 import com.vnator.adminshop.capabilities.money.MoneyProvider;
 import com.vnator.adminshop.packets.PacketHandler;
 import com.vnator.adminshop.packets.PacketUpdateMoney;
@@ -27,7 +29,7 @@ import java.util.UUID;
 
 public class TileEntityItemSeller extends TileEntity implements ITickable {
 
-	private UUID player;
+	private String player;
 
 	FluidTank tank = new FluidTank(16000);
 	private ItemStackHandler inventory = new ItemStackHandler(1){
@@ -45,16 +47,13 @@ public class TileEntityItemSeller extends TileEntity implements ITickable {
 	public void update() {
 		if(!world.isRemote && player != null && !inventory.getStackInSlot(0).isEmpty()){
 			//Check if player is accessible
-			if(world.getPlayerEntityByUUID(player) == null){
-				player = null;
-				return;
-			}
 
 			//Sell the item
 			ItemStack item = inventory.getStackInSlot(0);
 			String name = item.getItem().getRegistryName() + ":" + item.getMetadata();
 			float money = ShopStock.sellItemMap.get(name)*item.getCount();
-			world.getPlayerEntityByUUID(player).getCapability(MoneyProvider.MONEY_CAPABILITY, null).deposit(money);
+			BalanceAdapter.deposit(world, player, money);
+			//world.getCapability(LedgerProvider.LEDGER_CAPABILITY, null).deposit(player, money);
 			inventory.setStackInSlot(0, ItemStack.EMPTY);
 		}
 	}
@@ -69,13 +68,11 @@ public class TileEntityItemSeller extends TileEntity implements ITickable {
 	@Override
 	public void readFromNBT(NBTTagCompound compound){
 		inventory.deserializeNBT(compound.getCompoundTag("inventory"));
-		try {
-			player = UUID.fromString(compound.getString("player"));
-		}catch (IllegalArgumentException e){
-			AdminShop.logger.log(Level.INFO, "No player saved to itemSeller. Setting player to null");
+		player = compound.getString("player");
+		if(player == null || player.equals("")){
 			player = null;
 		}
-		System.out.println("Reading NBT for ItemSeller! playerID string = "+compound.getString("player"));
+		//System.out.println("Reading NBT for ItemSeller! player name string = "+compound.getString("player"));
 		//if(world.getPlayerEntityByUUID(player) == null)
 		//	player = null;
 		super.readFromNBT(compound);
@@ -99,11 +96,11 @@ public class TileEntityItemSeller extends TileEntity implements ITickable {
 			return super.getCapability(capability, facing);
 	}
 
-	public void setPlayer(UUID player){
+	public void setPlayer(String player){
 		this.player = player;
 	}
 
-	public UUID getPlayer(){
+	public String getPlayer(){
 		return player;
 	}
 }

@@ -1,6 +1,8 @@
 package com.vnator.adminshop.blocks;
 
 import com.vnator.adminshop.ModBlocks;
+import com.vnator.adminshop.capabilities.BalanceAdapter;
+import com.vnator.adminshop.capabilities.ledger.LedgerProvider;
 import com.vnator.adminshop.capabilities.money.MoneyProvider;
 import com.vnator.adminshop.packets.PacketHandler;
 import com.vnator.adminshop.packets.PacketUpdateMoney;
@@ -45,8 +47,8 @@ public abstract class BlockTileEntity<TE extends TileEntity> extends BlockBase{
 
 		if(!world.isRemote) {
 			//Update client
-			PacketHandler.INSTANCE.sendTo(new PacketUpdateMoney(
-					player.getCapability(MoneyProvider.MONEY_CAPABILITY, null).getMoney()), (EntityPlayerMP) player);
+			PacketHandler.INSTANCE.sendTo(new PacketUpdateMoney(BalanceAdapter.getMoneyServer((EntityPlayerMP)player)),
+					(EntityPlayerMP) player);
 		}
 		return true;
 	}

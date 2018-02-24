@@ -22,6 +22,7 @@ public class Ledger implements ILedger{
 			AdminShop.logger.log(Level.ERROR, "Trying to deposit value less than 0 into ledger!");
 			return false;
 		}
+		addPlayer(username);
 		balances.put(username, balances.get(username)+amount);
 		return true;
 	}

@@ -15,10 +15,8 @@ import java.util.UUID;
 
 public class ContainerItemSeller extends Container {
 
-	public UUID owner;
 
 	public ContainerItemSeller(InventoryPlayer playerInv, final TileEntityItemSeller seller){
-		owner = seller.getPlayer();
 		IItemHandler inventory = seller.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.NORTH);
 		addSlotToContainer(new SlotItemHandler(inventory, 0, 80, 35){
 			@Override
