@@ -3,9 +3,14 @@ package com.vnator.adminshop.blocks.seller;
 import com.vnator.adminshop.AdminShop;
 import com.vnator.adminshop.ModGuiHandler;
 import com.vnator.adminshop.blocks.BlockTileEntity;
+import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.inventory.InventoryHelper;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
@@ -14,6 +19,9 @@ import net.minecraft.world.World;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemHandlerHelper;
 
 import javax.annotation.Nullable;
 
@@ -66,5 +74,16 @@ public class BlockSeller extends BlockTileEntity<TileEntitySeller> {
 			//player.sendMessage(new TextComponentString("liquid in tank: "+ent.tank.getFluid().getFluid().getName()+" x"+ent.tank.getFluidAmount()));
 		}
 		return true;
+	}
+
+	@Override
+	public void breakBlock(World world, BlockPos pos, IBlockState state){
+		IItemHandler inv = world.getTileEntity(pos).getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+		for(int i = 0; i < inv.getSlots(); i++){
+			ItemStack item = inv.getStackInSlot(i);
+			EntityItem ent = new EntityItem(world, pos.getX(), pos.getY(), pos.getZ(), item);
+			world.spawnEntity(ent);
+		}
+		super.breakBlock(world, pos, state);
 	}
 }

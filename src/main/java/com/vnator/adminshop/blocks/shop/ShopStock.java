@@ -170,4 +170,19 @@ public class ShopStock {
 		return toret;
 	}
 
+	public static String getItemName(ItemStack item){
+		String name = item.getItem().getRegistryName()+":"+item.getMetadata();
+		if(item.getTagCompound() != null)
+			name += " "+item.getTagCompound().toString();
+		return name;
+	}
+
+	public static String getFluidName(FluidStack fluid){
+		String name = fluid.getFluid().getName();
+		if(fluid.tag != null)
+			name += " "+fluid.tag.toString();
+
+		return name;
+	}
+
 }
