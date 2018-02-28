@@ -12,8 +12,10 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.templates.FluidHandlerConcatenate;
 import net.minecraftforge.fluids.capability.templates.FluidHandlerFluidMap;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import net.minecraftforge.oredict.OreDictionary;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
+import scala.Int;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,7 +30,7 @@ public class ShopStock {
 	public static ArrayList<ItemStack[]> buyItems;
 	public static ArrayList<Float[]> buyItemPrices;
 
-	public static ArrayList<ItemStack[]> sellItems;
+	public static ArrayList<ShopItemStack[]> sellItems;
 	public static ArrayList<Float[]> sellItemPrices;
 
 	public static String [] buyCategories;
@@ -39,6 +41,7 @@ public class ShopStock {
 
 	public static HashMap<String, Float> sellItemMap = new HashMap<String, Float>();
 	public static HashMap<String, Float> sellFluidMap = new HashMap<String, Float>();
+	public static HashMap<Integer, Float> sellItemOredictMap = new HashMap<Integer, Float>();
 
 	public static void setShopCategories(String[] buyCats, String[] sellCats){
 		if(buyCats.length != 0)
@@ -59,26 +62,43 @@ public class ShopStock {
 		for(int i = 0; i < itemNames.size(); i++){
 			buyItems.add(new ItemStack[itemNames.get(i).length]);
 			for(int j = 0; j < itemNames.get(i).length; j++){
-				buyItems.get(i)[j] = parseItemString(itemNames.get(i)[j]);
+				ItemStack item = parseItemString(itemNames.get(i)[j]);
+				if(item == null){
+					AdminShop.logger.log(Level.ERROR, "OreDict entry used for buy list. Incompatible!");
+					item = ItemStack.EMPTY;
+				}
+				buyItems.get(i)[j] = item;
 			}
 		}
 	}
 
 	public static void setShopStockSell(ArrayList<String[]> itemNames, ArrayList<Float[]> itemPrices){
-		sellItems = new ArrayList<ItemStack[]>();
+		sellItems = new ArrayList<ShopItemStack[]>();
 		sellItemPrices = itemPrices;
 
 		for(int i = 0; i < itemNames.size(); i++){
-			sellItems.add(new ItemStack[itemNames.get(i).length]);
+			sellItems.add(new ShopItemStack[itemNames.get(i).length]);
 			for(int j = 0; j < itemNames.get(i).length; j++){
 				String itemName = itemNames.get(i)[j];
-				sellItems.get(i)[j] = parseItemString(itemName);
+				ItemStack tempItem = parseItemString(itemName);
+				if(tempItem == null){
+					sellItems.get(i)[j] = parseOredict(itemName);
+				}else{
+					sellItems.get(i)[j] = new ShopItemStack(tempItem);
+				}
 				AdminShop.logger.log(Level.INFO, "Sellable item: "+itemName);
 
-				ItemStack stack = sellItems.get(i)[j];
-				String myname = stack.getItem().getRegistryName() + ":" + stack.getMetadata();
-				if(stack.getTagCompound() != null)
-					myname += " "+stack.getTagCompound().toString();
+				String myname;
+				if(sellItems.get(i)[j].isOreDict()){
+					myname = "ore:"+sellItems.get(i)[j].getOreName();
+					sellItemOredictMap.put(OreDictionary.getOreID(sellItems.get(i)[j].getOreName()), sellItemPrices.get(i)[j]);
+				}else{
+					ItemStack stack = sellItems.get(i)[j].getItem();
+					myname = stack.getItem().getRegistryName() + ":" + stack.getMetadata();
+					if(stack.getTagCompound() != null)
+						myname += " "+stack.getTagCompound().toString();
+				}
+
 				if(!sellItemMap.containsKey(myname))
 					sellItemMap.put(myname, itemPrices.get(i)[j]);
 				else
@@ -116,6 +136,11 @@ public class ShopStock {
 		return new FluidStack(FluidRegistry.getFluid(split[0]), 1, tag);
 	}
 
+	/**
+	 * Returns an ItemStack representing the parameter string. Returns null if string is an oredict entry
+	 * @param s String to parse
+	 * @return ItemStack that s represents. Null if s is an oredict entry
+	 */
 	private static ItemStack parseItemString(String s){
 		//Remove trailing < and > if present
 		if(s.charAt(0) == '<')
@@ -143,6 +168,9 @@ public class ShopStock {
 		ItemStack toret = ItemStack.EMPTY;
 		String[] parts = s.split(":");
 		if (parts.length == 2){
+			if(parts[0].equals("ore")){ //Oredict entry, return null to show that
+				return null;
+			}
 			toret = new ItemStack(ForgeRegistries.ITEMS.getValue(new ResourceLocation(s)), 1, 0, nbt);
 		}
 		else if(parts.length == 3){
@@ -167,6 +195,31 @@ public class ShopStock {
 			toret.setTagCompound(nbt);
 		//}
 		AdminShop.logger.log(Level.INFO, "Item NBT: "+toret.getTagCompound());
+		return toret;
+	}
+
+	/**
+	 * Parse an oredict representing string into a ShopItemStack.
+	 * @param s String to parse
+	 * @return ShopItemStack made from the parsed string
+	 */
+	public static ShopItemStack parseOredict(String s){
+		NBTTagCompound nbt = null;
+		if(s.contains("{")){
+			AdminShop.logger.log(Level.INFO, "Parsing item with NBT!");
+			String nbtText = s.substring(s.indexOf('{'), s.lastIndexOf('}'));
+			nbtText += '}';
+			try {
+				nbt = JsonToNBT.getTagFromJson(nbtText);
+			}catch (NBTException e){
+				AdminShop.logger.log(Level.ERROR, "Improperly formatted NBT in config!\n"+s);
+			}
+			s = s.substring(0, s.indexOf('{'));
+			s = s.trim();
+			AdminShop.logger.log(Level.INFO, "Split Strings:\n"+s+"\n"+nbtText);
+		}
+
+		ShopItemStack toret = new ShopItemStack(s.split(":")[1], nbt);
 		return toret;
 	}
 

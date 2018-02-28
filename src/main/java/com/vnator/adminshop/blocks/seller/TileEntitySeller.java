@@ -21,6 +21,7 @@ import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.minecraftforge.fluids.capability.IFluidTankProperties;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
+import net.minecraftforge.oredict.OreDictionary;
 
 import javax.annotation.Nullable;
 
@@ -55,11 +56,21 @@ public class TileEntitySeller extends TileEntity implements ITickable, IFluidHan
 		if(!world.isRemote && player != null) {
 			//Sell Items
 			if (!inventory.getStackInSlot(0).isEmpty()) {
+				float money = 0;
 				ItemStack item = inventory.getStackInSlot(0);
 				String name = item.getItem().getRegistryName() + ":" + item.getMetadata();
 				if (item.getTagCompound() != null)
 					name += " " + item.getTagCompound().toString();
-				float money = ShopStock.sellItemMap.get(name) * item.getCount();
+				if(ShopStock.sellItemMap.containsKey(name)){
+					money = ShopStock.sellItemMap.get(name) * item.getCount();
+				}else{
+					int [] oreIds = OreDictionary.getOreIDs(item);
+					float maxVal = 0;
+					for(int i : oreIds){
+						maxVal = Math.max(maxVal, ShopStock.sellItemOredictMap.get(i));
+					}
+					money = maxVal*item.getCount();
+				}
 				BalanceAdapter.deposit(world, player, money);
 				//world.getCapability(LedgerProvider.LEDGER_CAPABILITY, null).deposit(player, money);
 				inventory.setStackInSlot(0, ItemStack.EMPTY);

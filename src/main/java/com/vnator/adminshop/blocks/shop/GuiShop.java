@@ -21,6 +21,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
+import net.minecraftforge.oredict.OreDictionary;
 import org.apache.logging.log4j.Level;
 
 import java.util.ArrayList;
@@ -114,8 +115,11 @@ public class GuiShop extends GuiContainer {
 		for(int i = 0; i < ShopStock.sellItems.size(); i++){
 			sellButtons.add(new GuiButtonShop[ShopStock.sellItems.get(i).length]);
 			for(int j = 0; j < ShopStock.sellItems.get(i).length; j++){
+				ItemStack sellSample = ShopStock.sellItems.get(i)[j].isOreDict() ?
+						OreDictionary.getOres(ShopStock.sellItems.get(i)[j].getOreName()).get(0) :
+						ShopStock.sellItems.get(i)[j].getItem();
 				sellButtons.get(i)[j] = new GuiButtonShop(buttonCounter, x+62+18*(j%7),  y+18+18*(j/7),
-						ShopStock.sellItems.get(i)[j], ShopStock.sellItemPrices.get(i)[j], false, itemRender);
+						sellSample, ShopStock.sellItemPrices.get(i)[j], false, itemRender);
 				buttonList.add(sellButtons.get(i)[j]);
 				sellButtons.get(i)[j].category = (short)i;
 				sellButtons.get(i)[j].index = j;

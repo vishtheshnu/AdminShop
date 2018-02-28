@@ -1,5 +1,6 @@
 package com.vnator.adminshop;
 
+import com.vnator.adminshop.items.CheckItem;
 import com.vnator.adminshop.items.FirstItem;
 import com.vnator.adminshop.items.IngotCopper;
 import com.vnator.adminshop.items.ItemBase;
@@ -17,6 +18,7 @@ public class ModItems {
 
 	//public static FirstItem firstItem = new FirstItem();
 	public static IngotCopper ingotCopper = new IngotCopper();
+	public static CheckItem check = new CheckItem();
 
 	public static void registerItems(RegistryEvent.Register<Item> event){
 		event.getRegistry().registerAll(itemsList.toArray(new Item[0]));

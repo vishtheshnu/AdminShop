@@ -16,6 +16,7 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import net.minecraft.inventory.Container;
+import net.minecraftforge.oredict.OreDictionary;
 
 public class ContainerSeller extends Container {
 
@@ -35,7 +36,14 @@ public class ContainerSeller extends Container {
 				if(stack.getTagCompound() != null) {
 					id += " " + stack.getTagCompound().toString();
 				}
-				return ShopStock.sellItemMap.containsKey(id);
+				boolean itemIn = ShopStock.sellItemMap.containsKey(id);
+				if(itemIn)
+					return true;
+				boolean oreIn;
+				int [] oreIDs = OreDictionary.getOreIDs(stack);
+				for(int i : oreIDs)
+					if(ShopStock.sellItemOredictMap.containsKey(i)) return true;
+				return false;
 			}
 		});
 

@@ -2,6 +2,7 @@ package com.vnator.adminshop.packets;
 
 import com.vnator.adminshop.AdminShop;
 import com.vnator.adminshop.ConfigHandler;
+import com.vnator.adminshop.blocks.shop.ShopItemStack;
 import com.vnator.adminshop.blocks.shop.ShopStock;
 import com.vnator.adminshop.capabilities.BalanceAdapter;
 import com.vnator.adminshop.capabilities.ledger.LedgerProvider;
@@ -73,19 +74,18 @@ public class PacketSendShopTransaction implements IMessage {
 		private void handle(PacketSendShopTransaction message, MessageContext ctx){
 			System.out.println("Handling transaction message!");
 			//Get the item
-			ItemStack transactionStack = ItemStack.EMPTY;
-			ItemStack tempItem = message.toBuy ? ShopStock.buyItems.get(message.category)[message.index] :
-					ShopStock.sellItems.get(message.category)[message.index];
-			transactionStack = ItemHandlerHelper.copyStackWithSize(tempItem, message.quantity);//new ItemStack(tempItem.getItem(), message.quantity, tempItem.getMetadata(), tempItem.getTagCompound());
-			AdminShop.logger.log(Level.INFO, "Exchanged Item NBT: "+transactionStack.serializeNBT());
 			float price = message.toBuy ? ShopStock.buyItemPrices.get(message.category)[message.index] :
 					ShopStock.sellItemPrices.get(message.category)[message.index];
 
-			//Perform the transaction
-			if(message.toBuy)
+			if(message.toBuy){
+				ItemStack transactionStack = ItemStack.EMPTY;
+				ItemStack tempItem = ShopStock.buyItems.get(message.category)[message.index];
+				transactionStack = ItemHandlerHelper.copyStackWithSize(tempItem, message.quantity);//new ItemStack(tempItem.getItem(), message.quantity, tempItem.getMetadata(), tempItem.getTagCompound());
 				buyTransaction(ctx.getServerHandler().player, transactionStack, price);
-			else
-				sellTransaction(ctx.getServerHandler().player, transactionStack, price);
+			}else{
+				ShopItemStack stk = ShopStock.sellItems.get(message.category)[message.index];
+				sellTransaction(ctx.getServerHandler().player, stk, message.quantity, price);
+			}
 
 			//Update client with new balance
 			EntityPlayerMP player = ctx.getServerHandler().player;
@@ -119,6 +119,12 @@ public class PacketSendShopTransaction implements IMessage {
 			//player.getCapability(MoneyProvider.MONEY_CAPABILITY, null).deposit(price*numSold);
 		}
 
+		private void sellTransaction(EntityPlayer player, ShopItemStack item, int quantity, float price){
+			IItemHandler inventory = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+			int numSold = removeItemsFromInventory(inventory, item, quantity);
+			BalanceAdapter.deposit(player, price*numSold);
+		}
+
 		/**
 		 * Removes the equivalent parameter itemstack from the inventory (item and count)
 		 * @param inv Inventory to remove from
@@ -143,6 +149,32 @@ public class PacketSendShopTransaction implements IMessage {
 
 			//Removed as much as possible, return count
 			return item.getCount() - count;
+		}
+
+		/**
+		 * Same as the other removeItemsFromInventory, but checks oredict instead of item equivalence
+		 * @param inv
+		 * @param item
+		 * @return
+		 */
+		private int removeItemsFromInventory(IItemHandler inv, ShopItemStack item, int quantity){
+			int count = quantity;
+			System.out.println("Removing items from inventory! # to remove: "+count);
+			for(int i = 0; i < inv.getSlots(); i++){
+				ItemStack comp = inv.getStackInSlot(i);
+				if(item.itemEqual(comp)){ //Found items we can remove
+					if(count > comp.getCount()){ //Remove entirety of this stack
+						count -= comp.getCount();
+						inv.extractItem(i, comp.getCount(), false);
+					}else{ //Remove what is left of stack, return number removed
+						inv.extractItem(i, count, false);
+						return quantity;
+					}
+				}
+			}
+
+			//Removed as much as possible, return count
+			return quantity - count;
 		}
 
 		private boolean itemstacksEqual(ItemStack a, ItemStack b){
