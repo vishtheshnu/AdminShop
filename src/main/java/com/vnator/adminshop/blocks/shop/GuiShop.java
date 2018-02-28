@@ -2,6 +2,7 @@ package com.vnator.adminshop.blocks.shop;
 
 import com.vnator.adminshop.AdminShop;
 import com.vnator.adminshop.ModBlocks;
+import com.vnator.adminshop.capabilities.BalanceAdapter;
 import com.vnator.adminshop.capabilities.money.IMoney;
 import com.vnator.adminshop.capabilities.money.MoneyProvider;
 import com.vnator.adminshop.packets.PacketHandler;

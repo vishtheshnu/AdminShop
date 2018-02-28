@@ -3,6 +3,7 @@ package com.vnator.adminshop;
 import com.vnator.adminshop.blocks.BlockBase;
 import com.vnator.adminshop.blocks.BlockOre;
 import com.vnator.adminshop.blocks.BlockTileEntity;
+import com.vnator.adminshop.blocks.atm.BlockATM;
 import com.vnator.adminshop.blocks.counter.BlockCounter;
 import com.vnator.adminshop.blocks.seller.BlockSeller;
 import com.vnator.adminshop.blocks.pedestal.BlockPedestal;
@@ -26,6 +27,7 @@ public class ModBlocks {
 	public static BlockPedestal pedestal = new BlockPedestal();
 	public static BlockShop shop = new BlockShop();
 	public static BlockSeller itemSeller = new BlockSeller();
+	public static BlockATM atm = new BlockATM();
 
     public static void register(RegistryEvent.Register<Block> event){
 		event.getRegistry().registerAll(blockList.toArray(new BlockBase[0]));
