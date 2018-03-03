@@ -3,6 +3,11 @@ package com.vnator.adminshop.blocks.atm;
 import com.vnator.adminshop.AdminShop;
 import com.vnator.adminshop.ModBlocks;
 import com.vnator.adminshop.capabilities.BalanceAdapter;
+import com.vnator.adminshop.packets.PacketHandler;
+import com.vnator.adminshop.packets.PacketUpdateMoney;
+import com.vnator.adminshop.packets.PacketWithdrawMoney;
+import net.minecraft.client.audio.SoundManager;
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -10,6 +15,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.util.ResourceLocation;
+import org.apache.logging.log4j.Level;
 
 import java.io.IOException;
 
@@ -29,7 +35,7 @@ public class GuiATM extends GuiContainer {
 	@Override
 	public void initGui(){
 		super.initGui();
-		moneyField = new GuiTextField(0, fontRenderer, 32+guiLeft, 50+guiTop, 112, 18){
+		moneyField = new GuiTextField(0, fontRenderer, 32+guiLeft, 48+guiTop, 112, 18){
 			public boolean textboxKeyTyped(char typedChar, int keyCode){
 				if(typedChar >= '0' && typedChar <= '9' || (typedChar == '.' && !this.getText().contains(".")) ||
 						typedChar == 8 || typedChar == 127) //delete and backspace
@@ -38,7 +44,6 @@ public class GuiATM extends GuiContainer {
 					return false;
 			}
 		};
-
 	}
 
 	@Override
@@ -69,6 +74,26 @@ public class GuiATM extends GuiContainer {
 	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException{
 		super.mouseClicked(mouseX, mouseY, mouseButton);
 		moneyField.mouseClicked(mouseX, mouseY, mouseButton);
+
+		//Check if refresh button was pressed
+		if(mouseX > 8 && mouseX < 20 && mouseY > 24 && mouseY < 36){
+
+		}
+		//Check if withdraw button was pressed
+		if(mouseX > guiLeft+148 && mouseX < guiLeft+168 && mouseY > guiTop+47 && mouseY < guiTop+67){
+			System.out.println("Pressed withdraw button!");
+			//Perform withdraw
+			float moneyText = 0;
+			try {
+				moneyText = Float.parseFloat(moneyField.getText());
+			}catch (NumberFormatException e){
+				AdminShop.logger.log(Level.ERROR, "Value in GuiATM's text field can't be parsed into a float!");
+			}
+			if(moneyText == 0)
+				return;
+
+			PacketHandler.INSTANCE.sendToServer(new PacketWithdrawMoney(moneyText));
+		}
 	}
 
 	@Override

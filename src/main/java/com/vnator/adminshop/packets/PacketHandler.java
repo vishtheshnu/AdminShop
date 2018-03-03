@@ -23,5 +23,6 @@ public class PacketHandler {
 	public static void registerMessages(){
 		INSTANCE.registerMessage(PacketSendShopTransaction.Handler.class, PacketSendShopTransaction.class, nextID(), Side.SERVER);
 		INSTANCE.registerMessage(PacketUpdateMoney.Handler.class, PacketUpdateMoney.class, nextID(), Side.CLIENT);
+		INSTANCE.registerMessage(PacketWithdrawMoney.Handler.class, PacketWithdrawMoney.class, nextID(), Side.SERVER);
 	}
 }
