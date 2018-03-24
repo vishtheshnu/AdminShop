@@ -6,6 +6,7 @@ import com.vnator.adminshop.capabilities.BalanceAdapter;
 import com.vnator.adminshop.packets.PacketHandler;
 import com.vnator.adminshop.packets.PacketUpdateMoney;
 import com.vnator.adminshop.packets.PacketWithdrawMoney;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.SoundManager;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiTextField;
@@ -25,6 +26,7 @@ public class GuiATM extends GuiContainer {
 	private EntityPlayer player;
 
 	private GuiTextField moneyField;
+	private GuiButton withdrawButton;
 
 	public GuiATM(Container container, EntityPlayer player) {
 		super(container);
@@ -44,6 +46,46 @@ public class GuiATM extends GuiContainer {
 					return false;
 			}
 		};
+
+		withdrawButton = new GuiButton(0, guiLeft+148, guiTop+47, ""){
+			public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks){
+				if(!this.visible)
+					return;
+
+				GlStateManager.color(1, 1, 1, 1);
+				mc.getTextureManager().bindTexture(BG);
+
+				if(mousePressed(mc, mouseX, mouseY)){
+					drawTexturedModalRect(x, y, 176, 52, 20, 20);
+				}else if(isMouseOver()){
+					drawTexturedModalRect(x, y, 176, 32, 20, 20);
+				}else{
+					drawTexturedModalRect(x, y, 176, 12, 20, 20);
+				}
+			}
+		};
+		withdrawButton.width = 20;
+		withdrawButton.height = 20;
+		addButton(withdrawButton);
+	}
+
+	@Override
+	protected void actionPerformed(GuiButton button) throws IOException {
+		super.actionPerformed(button);
+		if(button.id == withdrawButton.id){
+			System.out.println("Pressed withdraw button!");
+			//Perform withdraw
+			float moneyText = 0;
+			try {
+				moneyText = Float.parseFloat(moneyField.getText());
+			}catch (NumberFormatException e){
+				AdminShop.logger.log(Level.ERROR, "Value in GuiATM's text field can't be parsed into a float!");
+			}
+			if(moneyText == 0)
+				return;
+
+			PacketHandler.INSTANCE.sendToServer(new PacketWithdrawMoney(moneyText));
+		}
 	}
 
 	@Override
@@ -80,6 +122,7 @@ public class GuiATM extends GuiContainer {
 
 		}
 		//Check if withdraw button was pressed
+		/*
 		if(mouseX > guiLeft+148 && mouseX < guiLeft+168 && mouseY > guiTop+47 && mouseY < guiTop+67){
 			System.out.println("Pressed withdraw button!");
 			//Perform withdraw
@@ -94,6 +137,7 @@ public class GuiATM extends GuiContainer {
 
 			PacketHandler.INSTANCE.sendToServer(new PacketWithdrawMoney(moneyText));
 		}
+		*/
 	}
 
 	@Override

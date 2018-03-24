@@ -43,7 +43,7 @@ public class Ledger implements ILedger{
 
 	@Override
 	public float getMoney(String username) {
-		if(balances == null)
+		if(balances == null || username == null)
 			return 0;
 		return balances.get(username);
 	}

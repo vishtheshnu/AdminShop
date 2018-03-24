@@ -72,7 +72,6 @@ public class TileEntitySeller extends TileEntity implements ITickable, IFluidHan
 					money = maxVal*item.getCount();
 				}
 				BalanceAdapter.deposit(world, player, money);
-				//world.getCapability(LedgerProvider.LEDGER_CAPABILITY, null).deposit(player, money);
 				inventory.setStackInSlot(0, ItemStack.EMPTY);
 				markDirty();
 			}
@@ -82,8 +81,7 @@ public class TileEntitySeller extends TileEntity implements ITickable, IFluidHan
 				IFluidHandlerItem exTank = FluidUtil.getFluidHandler(inventory.getStackInSlot(1));
 				FluidStack liquid = exTank.drain(1000, true);
 				if(liquid == null){
-					//inventory.setStackInSlot(4, exTank.getContainer());
-					//inventory.setStackInSlot(1, ItemStack.EMPTY);
+					
 				}else{
 					float money = ShopStock.sellFluidMap.get(ShopStock.getFluidName(liquid));
 					BalanceAdapter.deposit(world, player, money);

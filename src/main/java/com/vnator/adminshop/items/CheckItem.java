@@ -27,7 +27,7 @@ public class CheckItem extends ItemBase {
 		}else{
 			if(!worldIn.isRemote){
 				float money = check.getTagCompound().getFloat("value");
-				BalanceAdapter.deposit(worldIn, player.getName(), money);
+				BalanceAdapter.deposit(player, money);
 				player.sendMessage(new TextComponentString("Deposited $"+String.format("%.2f", money)+" into your account."));
 			}
 

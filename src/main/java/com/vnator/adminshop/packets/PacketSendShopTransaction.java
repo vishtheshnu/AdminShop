@@ -5,8 +5,6 @@ import com.vnator.adminshop.ConfigHandler;
 import com.vnator.adminshop.blocks.shop.ShopItemStack;
 import com.vnator.adminshop.blocks.shop.ShopStock;
 import com.vnator.adminshop.capabilities.BalanceAdapter;
-import com.vnator.adminshop.capabilities.ledger.LedgerProvider;
-import com.vnator.adminshop.capabilities.money.MoneyProvider;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -99,11 +97,7 @@ public class PacketSendShopTransaction implements IMessage {
 			ItemStack returned = ItemHandlerHelper.insertItemStacked(inventory, toBuy, true);
 			price = (toBuy.getCount() - returned.getCount())*price;
 			boolean success = BalanceAdapter.withdraw(player, price);
-			//player.world.getCapability(LedgerProvider.LEDGER_CAPABILITY, null)
-			//		.withdraw(player.getName(), price);
 			if(success){
-				//Send money into player inventory
-				//ItemHandlerHelper.giveItemToPlayer(player, toBuy);
 				ItemHandlerHelper.insertItemStacked(inventory, toBuy, false);
 			}else{
 				AdminShop.logger.log(Level.ERROR, "Not enough money to perform transaction!");

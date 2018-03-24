@@ -18,15 +18,15 @@ import java.util.HashMap;
 public class BalanceAdapter{
 
 	public static float getMoneyServer(EntityPlayerMP player){
-		return player.world.getCapability(LedgerProvider.LEDGER_CAPABILITY, null).getMoney(player.getName());
+		return player.world.getCapability(LedgerProvider.LEDGER_CAPABILITY, null).getMoney(getPlayerID(player));
 	}
 
 	public static float getMoneyClient(EntityPlayer player){
-		return player.getCapability(MoneyProvider.MONEY_CAPABILITY, null).getMoney();
+		return player.world.getCapability(LedgerProvider.LEDGER_CAPABILITY, null).getMoney(getPlayerID(player));
 	}
 
 	public static boolean deposit(EntityPlayer player, float amount){
-		return player.world.getCapability(LedgerProvider.LEDGER_CAPABILITY, null).deposit(player.getName(), amount);
+		return player.world.getCapability(LedgerProvider.LEDGER_CAPABILITY, null).deposit(getPlayerID(player), amount);
 	}
 
 	public static boolean deposit(World world, String player, float amount){
@@ -34,10 +34,22 @@ public class BalanceAdapter{
 	}
 
 	public static boolean withdraw(EntityPlayer player, float amount){
-		return player.world.getCapability(LedgerProvider.LEDGER_CAPABILITY, null).withdraw(player.getName(), amount);
+		return player.world.getCapability(LedgerProvider.LEDGER_CAPABILITY, null).withdraw(getPlayerID(player), amount);
 	}
 
 	public static boolean withdraw(World world, String player, float amount){
 		return world.getCapability(LedgerProvider.LEDGER_CAPABILITY, null).withdraw(player, amount);
+	}
+
+	public static void setMoney(EntityPlayer player, float amount){
+		player.world.getCapability(LedgerProvider.LEDGER_CAPABILITY, null).setMoney(getPlayerID(player), amount);
+	}
+
+	public static void addPlayer(EntityPlayer player){
+		player.world.getCapability(LedgerProvider.LEDGER_CAPABILITY, null).addPlayer(getPlayerID(player));
+	}
+
+	private static String getPlayerID(EntityPlayer player){
+		return player.getUniqueID().toString();
 	}
 }

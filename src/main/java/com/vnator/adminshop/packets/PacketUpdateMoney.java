@@ -1,5 +1,6 @@
 package com.vnator.adminshop.packets;
 
+import com.vnator.adminshop.capabilities.BalanceAdapter;
 import com.vnator.adminshop.capabilities.ledger.LedgerProvider;
 import com.vnator.adminshop.capabilities.money.IMoney;
 import com.vnator.adminshop.capabilities.money.MoneyProvider;
@@ -45,8 +46,7 @@ public class PacketUpdateMoney implements IMessage {
 		private void handle(PacketUpdateMoney message, MessageContext ctx){
 			IMoney imon = Minecraft.getMinecraft().player.getCapability(MoneyProvider.MONEY_CAPABILITY, null);
 			imon.setMoney(message.mymoney);
-			Minecraft.getMinecraft().world.getCapability(LedgerProvider.LEDGER_CAPABILITY, null)
-					.setMoney(Minecraft.getMinecraft().player.getName(), message.mymoney);
+			BalanceAdapter.setMoney(Minecraft.getMinecraft().player, message.mymoney);
 		}
 	}
 }

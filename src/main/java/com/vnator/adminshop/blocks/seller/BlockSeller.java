@@ -48,12 +48,12 @@ public class BlockSeller extends BlockTileEntity<TileEntitySeller> {
 		if(!world.isRemote){
 			TileEntitySeller ent = (TileEntitySeller) world.getTileEntity(pos);
 			if(ent.getPlayer() == null) {
-				ent.setPlayer(player.getName());
+				ent.setPlayer(player.getUniqueID().toString());
 				player.sendMessage(new TextComponentString("Registered Player to Item Seller!"));
 				ent.markDirty();
 			}
 
-			if(ent.getPlayer().equals(player.getName())){
+			if(ent.getPlayer().equals(player.getUniqueID().toString())){
 				player.sendMessage(new TextComponentString("You are the registered owner of this block."));
 			}else{
 				player.sendMessage(new TextComponentString("WARNING: You will lose any items inserted. " +

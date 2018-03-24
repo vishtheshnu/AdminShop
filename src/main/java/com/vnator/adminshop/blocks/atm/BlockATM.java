@@ -15,12 +15,12 @@ import javax.annotation.Nullable;
 
 public class BlockATM extends BlockTileEntity<TileEntityATM> {
 
-	public BlockATM(){super(Material.ROCK, "ATM");}
+	public BlockATM(){super(Material.ROCK, "atm");}
 
 	@Override
 	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand,
 									EnumFacing side, float hitX, float hitY, float hitZ){
-
+		super.onBlockActivated(world, pos, state, player, hand, side, hitX, hitY, hitZ);
 		if(!world.isRemote){
 			player.openGui(AdminShop.instance, ModGuiHandler.ATM, world, pos.getX(), pos.getY(), pos.getZ());
 		}
