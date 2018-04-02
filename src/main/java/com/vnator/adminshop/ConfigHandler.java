@@ -59,11 +59,6 @@ public class ConfigHandler {
 
 		public String [] category4Items = new String[]{"minecraft:cobblestone"};
 		public float [] category4Prices = new float[]{1};
-
-		@Config.Comment({"List of liquid names. Eg. \"lava\""})
-		public String [] liquids = new String[]{"lava"};
-		@Config.Comment({"Price per millibucket (1/1000 of a bucket)"})
-		public float [] liquidPrices = new float[]{0.05f};
 	}
 
 	public static class ConfigSellItems{

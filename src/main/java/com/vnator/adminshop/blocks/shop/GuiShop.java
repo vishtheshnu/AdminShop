@@ -163,7 +163,7 @@ public class GuiShop extends GuiContainer {
 		for(GuiButtonShop but : myarr){
 			//Check if mouse is over button
 			if(but.x < mouseX && but.x+but.width > mouseX && but.y < mouseY && but.y+but.height > mouseY){
-				drawHoveringText(but.getTooltipStrings(shopUser), mouseX-(width-xSize)/2, mouseY);
+				drawHoveringText(but.getTooltipStrings(shopUser), mouseX-(width-xSize)/2, mouseY-(height-ySize)/2);
 			}
 		}
 	}

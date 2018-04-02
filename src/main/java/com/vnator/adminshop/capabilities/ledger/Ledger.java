@@ -45,6 +45,8 @@ public class Ledger implements ILedger{
 	public float getMoney(String username) {
 		if(balances == null || username == null)
 			return 0;
+		if(!balances.containsKey(username))
+			addPlayer(username);
 		return balances.get(username);
 	}
 

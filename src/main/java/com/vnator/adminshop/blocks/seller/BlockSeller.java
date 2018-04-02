@@ -6,6 +6,7 @@ import com.vnator.adminshop.blocks.BlockTileEntity;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -54,6 +55,16 @@ public class BlockSeller extends BlockTileEntity<TileEntitySeller> {
 	@Override
 	public TileEntitySeller createTileEntity(World world, IBlockState state) {
 		return new TileEntitySeller();
+	}
+
+	@Override
+	public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack){
+		//Set placing player as Seller's owner
+		if(!worldIn.isRemote){
+			TileEntitySeller ent = (TileEntitySeller) worldIn.getTileEntity(pos);
+			if(placer instanceof EntityPlayer)
+				ent.setPlayer(placer.getUniqueID().toString());
+		}
 	}
 
 	@Override

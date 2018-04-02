@@ -22,6 +22,6 @@ public class SellerBattery extends EnergyStorage {
 		int temp = energy;
 		energy = 0;
 		entity.markDirty();
-		return energy;
+		return temp;
 	}
 }

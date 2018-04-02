@@ -15,11 +15,13 @@ Seller: This block, registered to whoever places it down, will automatically sel
 
 To Do:
 
-Crafting recipes for blocks
+Create better models for blocks
 Commands
 Sync shop items with client on login
 
 
 Finished:
 
+Add drops to blocks
+Crafting recipes for blocks
 Switched accounts to reference player UUID instead of username

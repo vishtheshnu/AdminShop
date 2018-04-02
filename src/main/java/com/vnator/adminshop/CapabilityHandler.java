@@ -1,6 +1,5 @@
 package com.vnator.adminshop;
 
-import com.sun.xml.internal.ws.api.ResourceLoader;
 import com.vnator.adminshop.capabilities.ledger.LedgerProvider;
 import com.vnator.adminshop.capabilities.money.MoneyProvider;
 import net.minecraft.entity.Entity;

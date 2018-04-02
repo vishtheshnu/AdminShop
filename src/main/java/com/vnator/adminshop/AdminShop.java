@@ -79,7 +79,7 @@ public class AdminShop
 		ShopStock.setShopCategories(ConfigHandler.All_Shop_Categories.buyCategories, ConfigHandler.All_Shop_Categories.sellCategories);
 		ShopStock.setShopStockBuy(ConfigHandler.createStringListBuy(), ConfigHandler.createPriceListBuy());
 		ShopStock.setShopStockSell(ConfigHandler.createStringListSell(), ConfigHandler.createPriceListSell());
-		ShopStock.setShopLiquids(ConfigHandler.Buyable_Items.liquids, ConfigHandler.Buyable_Items.liquidPrices,
+		ShopStock.setShopLiquids(ConfigHandler.Sellable_Items.liquids, ConfigHandler.Sellable_Items.liquidPrices,
 				ConfigHandler.Sellable_Items.liquids, ConfigHandler.Sellable_Items.liquidPrices);
 	}
 
