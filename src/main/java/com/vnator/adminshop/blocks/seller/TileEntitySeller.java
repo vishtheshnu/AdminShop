@@ -161,7 +161,8 @@ public class TileEntitySeller extends TileEntity implements ITickable, IFluidHan
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound compound){
 		compound.setTag("inventory", inventory.serializeNBT());
-		compound.setString("player", player.toString());
+		if(player != null)
+			compound.setString("player", player);
 		tank.writeToNBT(compound);
 		return super.writeToNBT(compound);
 	}

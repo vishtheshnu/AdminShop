@@ -101,7 +101,7 @@ public class GuiATM extends GuiContainer {
 	@Override
 	protected  void drawGuiContainerForegroundLayer(int mouseX, int mouseY){
 		//Draw Shop's Name
-		String name = I18n.format(ModBlocks.shop.getUnlocalizedName()+".name");
+		String name = I18n.format(ModBlocks.atm.getUnlocalizedName()+".name");
 		fontRenderer.drawString(name, xSize/2 - fontRenderer.getStringWidth(name)/2, 6, 0x404040);
 
 		//Draw player inventory name

@@ -11,6 +11,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
@@ -28,6 +29,21 @@ import javax.annotation.Nullable;
 public class BlockSeller extends BlockTileEntity<TileEntitySeller> {
 
 	public BlockSeller(){super(Material.ROCK, "seller");}
+
+	@Override
+	public boolean isOpaqueCube(IBlockState state)
+	{
+		return false;
+	}
+	@Override
+	public boolean isFullCube(IBlockState state)
+	{
+		return false;
+	}
+	@Override
+	public BlockRenderLayer getBlockLayer() {
+		return BlockRenderLayer.TRANSLUCENT;
+	}
 
 	@Override
 	public Class<TileEntitySeller> getTileEntityClass() {

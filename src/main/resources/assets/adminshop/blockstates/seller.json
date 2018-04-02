@@ -3,7 +3,7 @@
 
   "variants": {
     "normal": {
-      "model": "adminshop:shop"
+      "model": "adminshop:seller"
     }
   }
 }
