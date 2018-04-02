@@ -17,7 +17,7 @@ public class ModItems {
 	public static final List<ItemBase> itemsList = new ArrayList<ItemBase>();
 
 	//public static FirstItem firstItem = new FirstItem();
-	public static IngotCopper ingotCopper = new IngotCopper();
+	//public static IngotCopper ingotCopper = new IngotCopper();
 	public static CheckItem check = new CheckItem();
 
 	public static void registerItems(RegistryEvent.Register<Item> event){

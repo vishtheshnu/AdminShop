@@ -22,9 +22,9 @@ public class ModBlocks {
 	public static final List<Item> blockItemList = new ArrayList<Item>();
 	public static final List<BlockTileEntity> blockTEList = new ArrayList<BlockTileEntity>();
 
-	public static BlockOre oreCopper = new BlockOre("ore_copper");
-	public static BlockCounter counter = new BlockCounter();
-	public static BlockPedestal pedestal = new BlockPedestal();
+	//public static BlockOre oreCopper = new BlockOre("ore_copper");
+	//public static BlockCounter counter = new BlockCounter();
+	//public static BlockPedestal pedestal = new BlockPedestal();
 	public static BlockShop shop = new BlockShop();
 	public static BlockSeller itemSeller = new BlockSeller();
 	public static BlockATM atm = new BlockATM();
