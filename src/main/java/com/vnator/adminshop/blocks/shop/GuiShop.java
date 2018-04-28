@@ -32,10 +32,14 @@ public class GuiShop extends GuiContainer {
 	private static final ResourceLocation BG_TEXT = new ResourceLocation(AdminShop.MODID, "textures/gui/shopback.png");
 	private static final int BUY_BUTTON_ID = 0;
 	private static final int SELL_BUTTON_ID = 1;
+	private static final int NUM_ROWS = 6, NUM_COLS = 6;
+	public static final int SHOP_BUTTONS_PER_PAGE = 36;
 
 	private InventoryPlayer playerInv;
 	private EntityPlayer shopUser;
 
+	private GuiBSButtonHandler buyButtonHandler;
+	private GuiBSButtonHandler sellButtonHandler;
 	private ArrayList<GuiButtonShop[]> buyButtons;
 	private ArrayList<GuiButtonShop[]> sellButtons;
 	private GuiButtonTab [] catBuyButtons;
@@ -93,45 +97,56 @@ public class GuiShop extends GuiContainer {
 		if(catSellButtons.length > 0) catSellButtons[0].selectButton();
 		buttonCounter += catSellButtons.length;
 
-
+		//Create buy and sell buttons
+		buyButtonHandler = new GuiBSButtonHandler();
+		sellButtonHandler = new GuiBSButtonHandler();
 		buyButtons = new ArrayList<GuiButtonShop[]>();
 		sellButtons = new ArrayList<GuiButtonShop[]>();
 		for(int i = 0; i < ShopStock.buyItems.size(); i++){
+			buyButtonHandler.addCategory(ShopStock.buyItems.get(i).length);
 			buyButtons.add(new GuiButtonShop[ShopStock.buyItems.get(i).length]);
 			for(int j = 0; j < ShopStock.buyItems.get(i).length; j++){
-				buyButtons.get(i)[j] = new GuiButtonShop(buttonCounter, x+62+18*(j%7),  y+18+18*(j/7),
+				GuiButtonShop but = new GuiButtonShop(buttonCounter, x+62+18*(j%NUM_COLS),
+						y+18+18*((j/NUM_COLS)%NUM_ROWS),
 						ShopStock.buyItems.get(i)[j], ShopStock.buyItemPrices.get(i)[j], true, itemRender);
-				buttonList.add(buyButtons.get(i)[j]);
-				buyButtons.get(i)[j].category = (short)i;
-				buyButtons.get(i)[j].index = j;
+				buttonList.add(but);
+				but.category = (short)i;
+				but.index = j;
+				buyButtonHandler.addButton(but);
+
+				buyButtons.get(i)[j] = but;
 				//Keep enabled if buy, category 1
 				if(i > 0) {
-					buyButtons.get(i)[j].visible = false;
-					buyButtons.get(i)[j].enabled = false;
+					but.visible = false;
+					but.enabled = false;
 				}
 				buttonCounter++;
 			}
 		}
 		buttonCounter = 0;
 		for(int i = 0; i < ShopStock.sellItems.size(); i++){
+			sellButtonHandler.addCategory(ShopStock.sellItems.get(i).length);
 			sellButtons.add(new GuiButtonShop[ShopStock.sellItems.get(i).length]);
 			for(int j = 0; j < ShopStock.sellItems.get(i).length; j++){
 				ItemStack sellSample = ShopStock.sellItems.get(i)[j].isOreDict() ?
 						OreDictionary.getOres(ShopStock.sellItems.get(i)[j].getOreName()).get(0) :
 						ShopStock.sellItems.get(i)[j].getItem();
-				sellButtons.get(i)[j] = new GuiButtonShop(buttonCounter, x+62+18*(j%7),  y+18+18*(j/7),
+				GuiButtonShop but = new GuiButtonShop(buttonCounter, x+62+18*(j%NUM_COLS),
+						y+18+18*((j/NUM_COLS)%NUM_ROWS),
 						sellSample, ShopStock.sellItemPrices.get(i)[j], false, itemRender);
-				buttonList.add(sellButtons.get(i)[j]);
-				sellButtons.get(i)[j].category = (short)i;
-				sellButtons.get(i)[j].index = j;
-				sellButtons.get(i)[j].visible = false;
-				sellButtons.get(i)[j].enabled = false;
+				buttonList.add(but);
+				but.category = (short)i;
+				but.index = j;
+				sellButtonHandler.addButton(but);
+
+				sellButtons.get(i)[j] = but;
 				buttonCounter++;
 			}
 		}
 		//buttonList.add(new GuiButtonShop(0, x+62,  y+18, "minecraft:coal:1", 5, true, itemRender));
 		//buttonList.add(new GuiButton(0, x+9, y+18, "Test Button!"));
 		//(new GuiButton(0, 2, 0, 1, 1, "")).enabled = false;
+		buyButtonHandler.setVisible(true);
 	}
 
 	@Override
@@ -159,6 +174,11 @@ public class GuiShop extends GuiContainer {
 		fontRenderer.drawString(money, 178-fontRenderer.getStringWidth(money), ySize-94, 0x404040);
 
 		//Draw tooltips for hovered button
+		GuiBSButtonHandler hand = buyMode ? buyButtonHandler : sellButtonHandler;
+		GuiButtonShop but = hand.isMouseOn(mouseX, mouseY);
+		if(but != null)
+			drawHoveringText(but.getTooltipStrings(shopUser), mouseX-(width-xSize)/2, mouseY-(height-ySize)/2);
+		/*
 		GuiButtonShop[] myarr = buyMode ? buyButtons.get(buyCat) : sellButtons.get(sellCat);
 		for(GuiButtonShop but : myarr){
 			//Check if mouse is over button
@@ -166,13 +186,33 @@ public class GuiShop extends GuiContainer {
 				drawHoveringText(but.getTooltipStrings(shopUser), mouseX-(width-xSize)/2, mouseY-(height-ySize)/2);
 			}
 		}
+		*/
 	}
 
 	@Override
 	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws java.io.IOException{
 		super.mouseClicked(mouseX, mouseY, mouseButton);
 
-		//If a category button is clicked, set it
+		int x = (width-xSize) / 2;
+		int y = (height-ySize) / 2;
+		//Scroll up and down buttons
+		System.out.println("mouse location: "+(mouseX-x)+" , "+(mouseY-y));
+		if(mouseX > 170+x && mouseX < 186+x){
+			GuiBSButtonHandler handler = buyMode ? buyButtonHandler : sellButtonHandler;
+			if(mouseY > 18+y && mouseY < 34+y){
+				System.out.println("Scrolling up!");
+				if(handler.canScroll(true)){
+					handler.scroll(true);
+				}
+			}else if(mouseY > 108+y && mouseY < 124+y){
+				System.out.println("Scrolling down!");
+				if(handler.canScroll(false)){
+					handler.scroll(false);
+				}
+			}
+		}
+
+
 	}
 
 	@Override
@@ -197,6 +237,9 @@ public class GuiShop extends GuiContainer {
 	private void switchBSTab(GuiButtonTab tabbutton){
 		if(tabbutton.isBuy()){
 			buyMode = true;
+			sellButtonHandler.setVisible(false);
+			buyButtonHandler.setVisible(true);
+			/*
 			//Enable currently selected buy button tab
 			for(int i = 0; i < sellButtons.get(sellCat).length; i++){
 				sellButtons.get(sellCat)[i].enabled = false;
@@ -207,6 +250,7 @@ public class GuiShop extends GuiContainer {
 				buyButtons.get(buyCat)[i].enabled = true;
 				buyButtons.get(buyCat)[i].visible = true;
 			}
+			*/
 			//Disable previous category buttons
 			for(GuiButtonTab but : catSellButtons){
 				but.enabled = false;
@@ -219,6 +263,10 @@ public class GuiShop extends GuiContainer {
 			}
 		}else if(tabbutton.isSell()){
 			buyMode = false;
+
+			buyButtonHandler.setVisible(false);
+			sellButtonHandler.setVisible(true);
+			/*
 			//Disable previously selected shop buttons
 			for(int i = 0; i < buyButtons.get(buyCat).length; i++){
 				buyButtons.get(buyCat)[i].enabled = false;
@@ -229,6 +277,7 @@ public class GuiShop extends GuiContainer {
 				sellButtons.get(sellCat)[i].enabled = true;
 				sellButtons.get(sellCat)[i].visible = true;
 			}
+			*/
 			//Enable currently selected category buttons
 			for(GuiButtonTab but : catSellButtons){
 				but.enabled = true;
@@ -246,15 +295,26 @@ public class GuiShop extends GuiContainer {
 		GuiButtonShop [] newbuttons = null;
 		GuiButtonShop [] oldbuttons = null;
 		if(buyMode){ //Get buttons from buy button list
+			buyButtonHandler.setVisible(false);
+			buyButtonHandler.setCategory(tabbutton.getCategory());
+			buyButtonHandler.setVisible(true);
+			/*
 			newbuttons = buyButtons.get(tabbutton.getCategory());
 			oldbuttons = buyButtons.get(buyCat);
 			buyCat = tabbutton.getCategory();
+			*/
 		}else{
+			sellButtonHandler.setVisible(false);
+			sellButtonHandler.setCategory(tabbutton.getCategory());
+			sellButtonHandler.setVisible(true);
+			/*
 			newbuttons = sellButtons.get(tabbutton.getCategory());
 			oldbuttons = sellButtons.get(sellCat);
 			sellCat = tabbutton.getCategory();
+			*/
 		}
 
+		/*
 		for(GuiButtonShop but : oldbuttons){
 			but.visible = false;
 			but.enabled = false;
@@ -263,6 +323,7 @@ public class GuiShop extends GuiContainer {
 			but.visible = true;
 			but.enabled = true;
 		}
+		*/
 
 	}
 
