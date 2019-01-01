@@ -1,6 +1,7 @@
 package com.vnator.adminshop;
 
 import com.google.common.eventbus.Subscribe;
+import com.vnator.adminshop.blocks.shop.ShopLoader;
 import com.vnator.adminshop.blocks.shop.ShopStock;
 import com.vnator.adminshop.capabilities.BalanceAdapter;
 import com.vnator.adminshop.capabilities.money.MoneyProvider;
@@ -27,6 +28,7 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
 import java.util.ArrayList;
 
 @Mod.EventBusSubscriber
@@ -76,11 +78,17 @@ public class AdminShop
 	}
 
 	private void registerShopStock(){
+		//Load csv file, pass its data into ShopStock
+		ShopLoader.getInstance().loadOnWorldStart();
+		//System.out.println("File location: "+(new File("")).getAbsolutePath());
+		//ShopLoader.getInstance();
+		/*
 		ShopStock.setShopCategories(ConfigHandler.All_Shop_Categories.buyCategories, ConfigHandler.All_Shop_Categories.sellCategories);
 		ShopStock.setShopStockBuy(ConfigHandler.createStringListBuy(), ConfigHandler.createPriceListBuy());
 		ShopStock.setShopStockSell(ConfigHandler.createStringListSell(), ConfigHandler.createPriceListSell());
 		ShopStock.setShopLiquids(ConfigHandler.Sellable_Items.liquids, ConfigHandler.Sellable_Items.liquidPrices,
 				ConfigHandler.Sellable_Items.liquids, ConfigHandler.Sellable_Items.liquidPrices);
+		*/
 	}
 
 	@SubscribeEvent

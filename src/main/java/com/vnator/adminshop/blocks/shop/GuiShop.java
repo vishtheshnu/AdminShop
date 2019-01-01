@@ -18,7 +18,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
@@ -48,6 +50,8 @@ public class GuiShop extends GuiContainer {
 	private int buyCat, sellCat;
 	private boolean buyMode;
 
+	private int buttonCounter;
+
 	public GuiShop(Container container, EntityPlayer player) {
 		super(container);
 		xSize = 195; ySize = 222;
@@ -66,7 +70,7 @@ public class GuiShop extends GuiContainer {
 		int x = (width-xSize) / 2;
 		int y = (height-ySize) / 2;
 
-		int buttonCounter = 0;
+		buttonCounter = 0;
 
 		//Create Buy and Sell Buttons
 		GuiButtonTab buyTab = TabButtonBuilder.createBuySellButton(x+8, y+4, "Buy", true);//new GuiButtonTab(BUY_BUTTON_ID, x+8, y+4, "Buy", true, bsgroup);
@@ -78,7 +82,23 @@ public class GuiShop extends GuiContainer {
 		buttonCounter = 2;
 
 		//Create Category Tab Buttons
-		catBuyButtons = new GuiButtonTab[Math.min(ShopStock.buyItems.size(), ShopStock.buyCategories.length)];
+		createCategoryButtons(x, y);
+
+		//Create buy and sell buttons
+		createBuyButtons(x, y);
+		createSellButtons(x, y);
+
+		//buttonList.add(new GuiButtonShop(0, x+62,  y+18, "minecraft:coal:1", 5, true, itemRender));
+		//buttonList.add(new GuiButton(0, x+9, y+18, "Test Button!"));
+		//(new GuiButton(0, 2, 0, 1, 1, "")).enabled = false;
+		buyButtonHandler.setVisible(true);
+	}
+
+	/**
+	 * Create category buttons for buy and sell tabs
+	 */
+	private void createCategoryButtons(int x, int y){
+		catBuyButtons = new GuiButtonTab[Math.min(ShopStock.buyStock.size(), ShopStock.buyCategories.length)];
 		for(int i = 0; i < catBuyButtons.length; i++){
 			catBuyButtons[i] = TabButtonBuilder.createCategoryButton(x+9, y+17+18*i, ShopStock.buyCategories[i], i);//new GuiButtonTab(buttonCounter+i, 9, 17+18*i, ShopStock.buyCategories[i], false, buygroup);
 			buttonList.add(catBuyButtons[i]);
@@ -86,7 +106,7 @@ public class GuiShop extends GuiContainer {
 		if(catBuyButtons.length > 0) catBuyButtons[0].selectButton();
 		buttonCounter += catBuyButtons.length;
 
-		catSellButtons = new GuiButtonTab[Math.min(ShopStock.sellItems.size(), ShopStock.sellCategories.length)];
+		catSellButtons = new GuiButtonTab[Math.min(ShopStock.sellStock.size(), ShopStock.sellCategories.length)];
 		TabButtonBuilder.createNewGroup();
 		for(int i = 0; i < catSellButtons.length; i++){
 			catSellButtons[i] = TabButtonBuilder.createCategoryButton(x+9, y+17+18*i, ShopStock.sellCategories[i], i);//new GuiButtonTab(buttonCounter+i, 9, 17+18*i, ShopStock.sellCategories[i], false, sellgroup);
@@ -96,19 +116,37 @@ public class GuiShop extends GuiContainer {
 		}
 		if(catSellButtons.length > 0) catSellButtons[0].selectButton();
 		buttonCounter += catSellButtons.length;
+	}
 
-		//Create buy and sell buttons
+	/**
+	 * Create shop and category buttons for the buy tab.
+	 */
+	private void createBuyButtons(int x, int y){
+		boolean errorFlag = false;
 		buyButtonHandler = new GuiBSButtonHandler();
-		sellButtonHandler = new GuiBSButtonHandler();
 		buyButtons = new ArrayList<GuiButtonShop[]>();
-		sellButtons = new ArrayList<GuiButtonShop[]>();
-		for(int i = 0; i < ShopStock.buyItems.size(); i++){
-			buyButtonHandler.addCategory(ShopStock.buyItems.get(i).length);
-			buyButtons.add(new GuiButtonShop[ShopStock.buyItems.get(i).length]);
-			for(int j = 0; j < ShopStock.buyItems.get(i).length; j++){
+		System.out.println("BuyStock Size: "+ShopStock.buyStock.size());
+		for(int i = 0; i < ShopStock.buyStock.size(); i++){
+			buyButtonHandler.addCategory(ShopStock.buyStock.get(i).size());
+			buyButtons.add(new GuiButtonShop[ShopStock.buyStock.get(i).size()]);
+			System.out.println("BuyStock index "+i+" Size: "+ShopStock.buyStock.get(i).size());
+			for(int j = 0; j < ShopStock.buyStock.get(i).size(); j++){
+				/*
+				ItemStack buySample = ShopStock.buyItems.get(i)[j];
+				if(buySample == null){
+					AdminShop.logger.log(Level.ERROR, "Shop item null! Buy category "+i+", item index "+j+
+							"name: "+ ShopStock.buyItems.get(i)[j].toString());
+					shopUser.sendMessage(new TextComponentString("Error with item: \""+ShopStock.buyItems.get(i)[j].toString()+
+							"\" in buy category "+i+", item index "+j));
+					errorFlag = true;
+					continue;
+				}
+				*/
+				ShopItem sample = ShopStock.buyStock.get(i).get(j);
+				System.out.println("createBuyButtons: "+i+" , "+j+"; "+sample.toString());
 				GuiButtonShop but = new GuiButtonShop(buttonCounter, x+62+18*(j%NUM_COLS),
 						y+18+18*((j/NUM_COLS)%NUM_ROWS),
-						ShopStock.buyItems.get(i)[j], ShopStock.buyItemPrices.get(i)[j], true, itemRender);
+						sample, sample.getPrice(), true, itemRender);
 				buttonList.add(but);
 				but.category = (short)i;
 				but.index = j;
@@ -123,17 +161,55 @@ public class GuiShop extends GuiContainer {
 				buttonCounter++;
 			}
 		}
+
+		if(errorFlag) {
+			String errorStr = I18n.format("error.buy.storeFormat");
+			AdminShop.logger.log(Level.ERROR, errorStr);
+			shopUser.sendMessage(new TextComponentString(errorStr));
+		}
+	}
+
+	/**
+	 * Create shop and category buttons for the sell tab
+	 */
+	private void createSellButtons(int x, int y){
+		boolean errorFlag = false;
+		sellButtonHandler = new GuiBSButtonHandler();
+		sellButtons = new ArrayList<GuiButtonShop[]>();
 		buttonCounter = 0;
-		for(int i = 0; i < ShopStock.sellItems.size(); i++){
-			sellButtonHandler.addCategory(ShopStock.sellItems.get(i).length);
-			sellButtons.add(new GuiButtonShop[ShopStock.sellItems.get(i).length]);
-			for(int j = 0; j < ShopStock.sellItems.get(i).length; j++){
-				ItemStack sellSample = ShopStock.sellItems.get(i)[j].isOreDict() ?
-						OreDictionary.getOres(ShopStock.sellItems.get(i)[j].getOreName()).get(0) :
-						ShopStock.sellItems.get(i)[j].getItem();
+		for(int i = 0; i < ShopStock.sellStock.size(); i++){
+			sellButtonHandler.addCategory(ShopStock.sellStock.get(i).size());
+			sellButtons.add(new GuiButtonShop[ShopStock.sellStock.get(i).size()]);
+			for(int j = 0; j < ShopStock.sellStock.get(i).size(); j++){
+				/*
+				//Get the item to be sold
+				ItemStack sellSample = null;
+				//Check if it's an oredict entry
+				if(ShopStock.sellItems.get(i)[j].isOreDict()){
+					NonNullList<ItemStack> odList = OreDictionary.getOres(ShopStock.sellItems.get(i)[j].getOreName());
+					if(odList.size() > 0){ //In case user inputted nonsense value
+						sellSample = odList.get(0);
+					}
+				}
+				else { //It's an item, not an oredict entry
+					sellSample = ShopStock.sellItems.get(i)[j].getItem();
+				}
+
+				if(sellSample == null) {
+					AdminShop.logger.log(Level.ERROR, "Shop item null! Sell category " + i + ", item index " + j +
+							", name: " + ShopStock.sellItems.get(i)[j].toString());
+					shopUser.sendMessage(new TextComponentString("Error with item: \""+ShopStock.sellItems.get(i)[j].toString()+
+					"\" in sell category "+i+", item index "+j));
+					errorFlag = true;
+					continue;
+				}
+				*/
+
+				ShopItem sample = ShopStock.sellStock.get(i).get(j);
 				GuiButtonShop but = new GuiButtonShop(buttonCounter, x+62+18*(j%NUM_COLS),
 						y+18+18*((j/NUM_COLS)%NUM_ROWS),
-						sellSample, ShopStock.sellItemPrices.get(i)[j], false, itemRender);
+						sample, sample.getPrice(), false, itemRender);
+
 				buttonList.add(but);
 				but.category = (short)i;
 				but.index = j;
@@ -143,10 +219,12 @@ public class GuiShop extends GuiContainer {
 				buttonCounter++;
 			}
 		}
-		//buttonList.add(new GuiButtonShop(0, x+62,  y+18, "minecraft:coal:1", 5, true, itemRender));
-		//buttonList.add(new GuiButton(0, x+9, y+18, "Test Button!"));
-		//(new GuiButton(0, 2, 0, 1, 1, "")).enabled = false;
-		buyButtonHandler.setVisible(true);
+
+		if(errorFlag){
+			String errorStr = I18n.format("error.sell.storeFormat");
+			AdminShop.logger.log(Level.ERROR, errorStr);
+			shopUser.sendMessage(new TextComponentString(errorStr));
+		}
 	}
 
 	@Override
@@ -221,7 +299,7 @@ public class GuiShop extends GuiContainer {
 			AdminShop.logger.log(Level.DEBUG, "GuiShopButton pressed!");
 			GuiButtonShop shopbutton = (GuiButtonShop) button;
 			PacketHandler.INSTANCE.sendToServer(new PacketSendShopTransaction(
-					shopbutton.category, shopbutton.index, shopbutton.getItemStack().getCount(), buyMode
+					shopbutton.category, shopbutton.index, shopbutton.getQuantity(), buyMode
 			));
 		}else if(button instanceof GuiButtonTab){
 			GuiButtonTab tabbutton = (GuiButtonTab) button;
@@ -327,6 +405,7 @@ public class GuiShop extends GuiContainer {
 
 	}
 
+	/*
 	private void buyItem(GuiButtonShop shopbutton){
 		IItemHandler inventory = shopUser.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
 		ItemStack tobuy = shopbutton.getItemStack();
@@ -340,4 +419,5 @@ public class GuiShop extends GuiContainer {
 			AdminShop.logger.log(Level.ERROR, "Not enough money to perform transaction!");
 		}
 	}
+	*/
 }

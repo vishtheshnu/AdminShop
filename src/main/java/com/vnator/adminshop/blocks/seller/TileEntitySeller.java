@@ -24,6 +24,7 @@ import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.oredict.OreDictionary;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 
 public class TileEntitySeller extends TileEntity implements ITickable, IFluidHandler{
 
@@ -56,21 +57,32 @@ public class TileEntitySeller extends TileEntity implements ITickable, IFluidHan
 		if(!world.isRemote && player != null) {
 			//Sell Items
 			if (!inventory.getStackInSlot(0).isEmpty()) {
+				//Add all possible names to a list, check with the HashMap in ShopStock for the best price
+				ArrayList<String> names = new ArrayList<String>();
 				float money = 0;
 				ItemStack item = inventory.getStackInSlot(0);
 				String name = item.getItem().getRegistryName() + ":" + item.getMetadata();
-				if (item.getTagCompound() != null)
+				names.add(name);
+				if (item.getTagCompound() != null) {
 					name += " " + item.getTagCompound().toString();
-				if(ShopStock.sellItemMap.containsKey(name)){
-					money = ShopStock.sellItemMap.get(name) * item.getCount();
-				}else{
-					int [] oreIds = OreDictionary.getOreIDs(item);
-					float maxVal = 0;
-					for(int i : oreIds){
-						maxVal = Math.max(maxVal, ShopStock.sellItemOredictMap.get(i));
-					}
-					money = maxVal*item.getCount();
+					names.add(name);
 				}
+
+				int [] oreIds = OreDictionary.getOreIDs(item);
+				for(int i : oreIds){
+					names.add(""+i);
+					if (item.getTagCompound() != null) {
+						names.add(i + " " + item.getTagCompound().toString());
+					}
+					//maxVal = Math.max(maxVal, ShopStock.sellItemOredictMap.get(i));
+				}
+				for(String s : names)
+					if(ShopStock.sellMap.containsKey(s))
+						money = Math.max(money, ShopStock.sellMap.get(s).getPrice());
+
+				//Multiply by the item quantity
+				money *= item.getCount();
+
 				BalanceAdapter.deposit(world, player, money);
 				inventory.setStackInSlot(0, ItemStack.EMPTY);
 				markDirty();
@@ -83,22 +95,31 @@ public class TileEntitySeller extends TileEntity implements ITickable, IFluidHan
 				if(liquid == null){
 					
 				}else{
-					float money = ShopStock.sellFluidMap.get(ShopStock.getFluidName(liquid));
+					String name = ShopStock.getFluidName(liquid);
+					float money = 0;
+					if(ShopStock.sellMap.containsKey(name))
+						money = ShopStock.sellMap.get(ShopStock.getFluidName(liquid)).getPrice();
+					if(liquid.tag != null){
+						name = ShopStock.getFluidName(liquid)+" "+liquid.tag.toString();
+						if(ShopStock.sellMap.containsKey(name))
+							money = Math.max(money, ShopStock.sellMap.get(name).getPrice());
+					}
+
 					BalanceAdapter.deposit(world, player, money);
 					inventory.setStackInSlot(1, exTank.getContainer());
 				}
 				markDirty();
 			}
 
-			//Sell Power
-			if(!inventory.getStackInSlot(2).isEmpty()){
+			//Sell Power (only if sell price > 0)
+			if(!inventory.getStackInSlot(2).isEmpty() && ConfigHandler.GENERAL_CONFIGS.forgeEnergyPrice > 0){
 				IEnergyStorage exBat = inventory.getStackInSlot(2).getCapability(CapabilityEnergy.ENERGY, null);
 				int power = exBat.extractEnergy(exBat.getEnergyStored(), false);
 				if(power == 0){
 					//inventory.setStackInSlot(5, inventory.getStackInSlot(2));
 					//inventory.setStackInSlot(2, ItemStack.EMPTY);
 				}else {
-					float money = power * ConfigHandler.Sellable_Items.forgeEnergyPrice;
+					float money = power * ConfigHandler.GENERAL_CONFIGS.forgeEnergyPrice;
 					BalanceAdapter.deposit(world, player, money);
 					markDirty();
 				}
@@ -107,9 +128,11 @@ public class TileEntitySeller extends TileEntity implements ITickable, IFluidHan
 			if(tank.getFluidAmount() >= ConfigHandler.GENERAL_CONFIGS.liquidSellPacketSize){
 				//Sell fluid in tank
 				String name = tank.getFluid().getFluid().getName();
-				if(tank.getFluid().tag != null)
-					name += " "+tank.getFluid().tag.toString();
-				float money = ShopStock.sellFluidMap.get(name)*tank.getFluidAmount();
+				float money = ShopStock.sellMap.get(name).getPrice()*tank.getFluidAmount();
+				if(tank.getFluid().tag != null) {
+					name += " " + tank.getFluid().tag.toString();
+					money = Math.max(money, ShopStock.sellMap.get(name).getPrice()*tank.getFluidAmount());
+				}
 				BalanceAdapter.deposit(world, player, money);
 				tank.drain(tank.getCapacity(), true);
 				markDirty();
@@ -117,7 +140,7 @@ public class TileEntitySeller extends TileEntity implements ITickable, IFluidHan
 
 			if(battery.getEnergyStored() >= ConfigHandler.GENERAL_CONFIGS.powerSellPacketSize){
 				int cap = battery.deleteEnergy(); //This method marks this TileEntity as dirty
-				float money = cap * ConfigHandler.Sellable_Items.forgeEnergyPrice;
+				float money = cap * ConfigHandler.GENERAL_CONFIGS.forgeEnergyPrice;
 				BalanceAdapter.deposit(world, player, money);
 			}
 		}
@@ -133,11 +156,15 @@ public class TileEntitySeller extends TileEntity implements ITickable, IFluidHan
 	@Override
 	public int fill(FluidStack resource, boolean doFill) {
 		String name = resource.getFluid().getName();
+		if(ShopStock.sellMap.containsKey(name)){
+			markDirty();
+			return tank.fill(resource, doFill);
+		}
 		if(resource.tag != null)
 			name += " "+resource.tag.toString();
 
 		//Fluid can be sold
-		if(ShopStock.sellFluidMap.containsKey(name)){
+		if(ShopStock.sellMap.containsKey(name)){
 			markDirty();
 			return tank.fill(resource, doFill);
 		}else

@@ -55,7 +55,7 @@ public class PacketSendSell implements IMessage{
 		}
 
 		private void handle(PacketSendSell message, MessageContext ctx){
-			float money = ShopStock.sellItemMap.get(message.name)*message.quantity;
+			float money = ShopStock.sellMap.get(message.name).getPrice()*message.quantity;
 			//TileEntity ent = Minecraft.getMinecraft().world.getTileEntity(message.pos);
 		}
 	}

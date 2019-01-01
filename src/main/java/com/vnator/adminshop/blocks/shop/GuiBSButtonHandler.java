@@ -49,6 +49,9 @@ public class GuiBSButtonHandler {
 					"Trying to add a buy/sell button to a full category. this shouldn't be getting called");
 			return;
 		}
+		if(button == null){
+			AdminShop.logger.log(Level.ERROR, "Attempting to add null button to shop screen! This can be caused by a non-existent item.");
+		}
 		buttons.get(buttons.size()-1)[nextSpace] = button;
 		button.enabled = false;
 		button.visible = false;
@@ -120,8 +123,13 @@ public class GuiBSButtonHandler {
 			int index = getButtonIndex(i);
 			if(index >= buttons.get(category).length)
 				break;
-			buttons.get(category)[index].visible = visible;
-			buttons.get(category)[index].enabled = visible;
+			try { //Me being super ultra lazy
+				buttons.get(category)[index].visible = visible;
+				buttons.get(category)[index].enabled = visible;
+			}catch(NullPointerException e){
+				System.out.println("NPE on setVisible for button category "+category+", index "+index);
+				continue;
+			}
 		}
 	}
 

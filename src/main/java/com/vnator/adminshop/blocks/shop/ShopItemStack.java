@@ -56,4 +56,7 @@ public class ShopItemStack{
 	public String getOreName(){
 		return oreName;
 	}
+
+	@Override
+	public String toString(){ return isOreDict ? this.oreName : item.toString(); }
 }

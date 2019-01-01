@@ -23,15 +23,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Static class that loads shop contents on startup.
+ * Static class that stores category names and everything sold in the shop.
  */
 public class ShopStock {
 
-	public static ArrayList<ItemStack[]> buyItems;
-	public static ArrayList<Float[]> buyItemPrices;
-
-	public static ArrayList<ShopItemStack[]> sellItems;
-	public static ArrayList<Float[]> sellItemPrices;
+	public static ArrayList<ArrayList<ShopItem>> buyStock;
+	public static ArrayList<ArrayList<ShopItem>> sellStock;
 
 	public static String [] buyCategories;
 	public static String [] sellCategories;
@@ -39,9 +36,10 @@ public class ShopStock {
 	public static FluidStack [] buyFluids;
 	public static float [] buyFluidPrices;
 
-	public static HashMap<String, Float> sellItemMap = new HashMap<String, Float>();
-	public static HashMap<String, Float> sellFluidMap = new HashMap<String, Float>();
-	public static HashMap<Integer, Float> sellItemOredictMap = new HashMap<Integer, Float>();
+	public static HashMap<String, ShopItem> sellMap = new HashMap<String, ShopItem>();
+	//public static HashMap<String, Float> sellItemMap = new HashMap<String, Float>();
+	//public static HashMap<String, Float> sellFluidMap = new HashMap<String, Float>();
+	//public static HashMap<Integer, Float> sellItemOredictMap = new HashMap<Integer, Float>();
 
 	public static void setShopCategories(String[] buyCats, String[] sellCats){
 		if(buyCats.length != 0)
@@ -55,6 +53,34 @@ public class ShopStock {
 			sellCategories = new String[]{"Items"};
 	}
 
+	public static void setShopStock(ArrayList<ArrayList<ShopItem>> buyItems, ArrayList<ArrayList<ShopItem>> sellItems){
+		if(buyStock != null)
+			buyStock.clear();
+		if(sellStock != null)
+			sellStock.clear();
+
+		for(ArrayList<ShopItem> cat : buyItems){
+			System.out.println("Category:");
+			for(ShopItem item : cat){
+				System.out.println("\t"+item.toString());
+			}
+		}
+
+		buyStock = buyItems;
+		sellStock = sellItems;
+
+		//Add to sell maps
+		sellMap.clear();
+		for(ArrayList<ShopItem> siList : sellStock){
+			for(ShopItem si : siList){
+				String str = si.toString();
+				System.out.println(str);
+				sellMap.put(str, si);
+			}
+		}
+	}
+
+	/*
 	public static void setShopStockBuy(ArrayList<String[]> itemNames, ArrayList<Float[]> itemPrices){
 		buyItems = new ArrayList<ItemStack[]>();
 		buyItemPrices = itemPrices;
@@ -64,7 +90,9 @@ public class ShopStock {
 			for(int j = 0; j < itemNames.get(i).length; j++){
 				ItemStack item = parseItemString(itemNames.get(i)[j]);
 				if(item == null){
-					AdminShop.logger.log(Level.ERROR, "OreDict entry used for buy list. Incompatible!");
+					AdminShop.logger.log(Level.ERROR,
+							"Either non-existent value or OreDict entry used for buy list.\n" +
+									"Category "+i+", item index "+j+", name: "+itemNames.get(i)[j]);
 					item = ItemStack.EMPTY;
 				}
 				buyItems.get(i)[j] = item;
@@ -83,7 +111,8 @@ public class ShopStock {
 				ItemStack tempItem = parseItemString(itemName);
 				if(tempItem == null){
 					sellItems.get(i)[j] = parseOredict(itemName);
-				}else{
+				}
+				else{
 					sellItems.get(i)[j] = new ShopItemStack(tempItem);
 				}
 				AdminShop.logger.log(Level.INFO, "Sellable item: "+itemName);
@@ -135,6 +164,7 @@ public class ShopStock {
 
 		return new FluidStack(FluidRegistry.getFluid(split[0]), 1, tag);
 	}
+	*/
 
 	/**
 	 * Returns an ItemStack representing the parameter string. Returns null if string is an oredict entry
@@ -219,7 +249,8 @@ public class ShopStock {
 			AdminShop.logger.log(Level.INFO, "Split Strings:\n"+s+"\n"+nbtText);
 		}
 
-		ShopItemStack toret = new ShopItemStack(s.split(":")[1], nbt);
+		String odString = s.split(":")[1];
+		ShopItemStack toret = new ShopItemStack(odString, nbt);
 		return toret;
 	}
 

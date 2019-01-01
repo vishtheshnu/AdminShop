@@ -18,12 +18,12 @@ public class ConfigHandler {
 
 	@Config.Comment({"General Config"})
 	public static GeneralCategory GENERAL_CONFIGS = new GeneralCategory();
-	@Config.Comment({"Shop Categories (Max 4 for each)"})
-	public static ConfigCategory All_Shop_Categories = new ConfigCategory();
-	@Config.Comment({"Buyable items and matching prices (max 42 per category)"})
-	public static ConfigBuyItems Buyable_Items = new ConfigBuyItems();
-	@Config.Comment({"Sellable items and matching prices (max 42 per category"})
-	public static ConfigSellItems Sellable_Items = new ConfigSellItems();
+	//@Config.Comment({"Shop Categories (Max 4 for each)"})
+	//public static ConfigCategory All_Shop_Categories = new ConfigCategory();
+	//@Config.Comment({"Buyable items and matching prices (max 42 per category)"})
+	//public static ConfigBuyItems Buyable_Items = new ConfigBuyItems();
+	//@Config.Comment({"Sellable items and matching prices (max 42 per category"})
+	//public static ConfigSellItems Sellable_Items = new ConfigSellItems();
 
 	@SubscribeEvent
 	public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event){
@@ -35,10 +35,12 @@ public class ConfigHandler {
 	public static class GeneralCategory{
 		@Config.Comment({"How much money each player starts with"})
 		public float startingMoney = 100f;
-		@Config.Comment({"Minimum mb sold by Seller at a time. Smaller values = more lag"})
-		public int liquidSellPacketSize = 100;
+		@Config.Comment({"Minimum mb sold by Seller at a time. Smaller values = more lag. Between 1 and 2 billion-ish"})
+		public int liquidSellPacketSize = 1;
 		@Config.Comment({"Minimum power sold by Seller at a time. Smaller values = more lag"})
 		public int powerSellPacketSize = 1000;
+		@Config.Comment({"How much money to give the play in exchange for each Forge Energy unit"})
+		public float forgeEnergyPrice = 0.0005f;
 	}
 
 	public static class ConfigCategory{
@@ -82,6 +84,7 @@ public class ConfigHandler {
 		public float forgeEnergyPrice = 0.1f;
 	}
 
+	/*
 	public static ArrayList<String[]> createStringListBuy(){
 		ArrayList<String[]> itemNames = new ArrayList<String[]>();
 		itemNames.add(Buyable_Items.category1Items);
@@ -151,6 +154,7 @@ public class ConfigHandler {
 
 		return prices;
 	}
+	*/
 
 	/*
     private static final String CATEGORY_GENERAL = "general";

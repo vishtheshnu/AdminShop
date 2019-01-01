@@ -32,17 +32,36 @@ public class ContainerSeller extends Container {
 
 			@Override
 			public boolean isItemValid(ItemStack stack){
+				//Check if the item itself is sellable
 				String id = stack.getItem().getRegistryName() + ":" + stack.getMetadata();
+				boolean itemIn = ShopStock.sellMap.containsKey(id);
+				System.out.println(id);
 				if(stack.getTagCompound() != null) {
 					id += " " + stack.getTagCompound().toString();
+					itemIn = itemIn || ShopStock.sellMap.containsKey(id);
+					System.out.println(id);
 				}
-				boolean itemIn = ShopStock.sellItemMap.containsKey(id);
 				if(itemIn)
 					return true;
+
+				//Check if oredict of the item is sellable
 				boolean oreIn;
 				int [] oreIDs = OreDictionary.getOreIDs(stack);
-				for(int i : oreIDs)
-					if(ShopStock.sellItemOredictMap.containsKey(i)) return true;
+				for(int i : oreIDs) {
+					System.out.println(i);
+					if(ShopStock.sellMap.containsKey(""+i)) {
+						System.out.println("Matches!");
+						return true;
+					}
+					if(stack.hasTagCompound()){
+						String checkKey = i+" "+stack.getTagCompound().toString();
+						System.out.println(checkKey);
+						if(ShopStock.sellMap.containsKey(checkKey))
+							return true;
+					}
+				}
+
+				//Not a sellable item
 				return false;
 			}
 		});
@@ -57,9 +76,13 @@ public class ContainerSeller extends Container {
 				FluidStack fluid = FluidUtil.getFluidContained(stack);
 				if(fluid != null){
 					String name = fluid.getFluid().getName();
+					if(ShopStock.sellMap.containsKey(name)) {
+						System.out.println("Matches!");
+						return true;
+					}
 					if(fluid.tag != null)
 						name += " "+fluid.tag.toString();
-					if(ShopStock.sellFluidMap.containsKey(name))
+					if(ShopStock.sellMap.containsKey(name))
 						return true;
 				}
 				return false;

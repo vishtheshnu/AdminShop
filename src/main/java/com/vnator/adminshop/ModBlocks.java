@@ -1,12 +1,9 @@
 package com.vnator.adminshop;
 
 import com.vnator.adminshop.blocks.BlockBase;
-import com.vnator.adminshop.blocks.BlockOre;
 import com.vnator.adminshop.blocks.BlockTileEntity;
 import com.vnator.adminshop.blocks.atm.BlockATM;
-import com.vnator.adminshop.blocks.counter.BlockCounter;
 import com.vnator.adminshop.blocks.seller.BlockSeller;
-import com.vnator.adminshop.blocks.pedestal.BlockPedestal;
 import com.vnator.adminshop.blocks.shop.BlockShop;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;

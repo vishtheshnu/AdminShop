@@ -1,28 +1,34 @@
 package com.vnator.adminshop.utils;
 
-import com.vnator.adminshop.AdminShop;
+import com.vnator.adminshop.blocks.shop.ShopItem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fluids.FluidRegistry;
+import net.minecraftforge.fluids.FluidUtil;
+import net.minecraftforge.fluids.UniversalBucket;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.items.ItemHandlerHelper;
-import org.apache.logging.log4j.Level;
+import net.minecraftforge.oredict.OreDictionary;
+import org.lwjgl.opengl.GL11;
 
 import java.util.LinkedList;
 import java.util.List;
 
 public class GuiButtonShop extends GuiButton {
 
-	private ItemStack item;
-	private ItemStack item1, item16, item64;//Amounts of 1, 16, and 64
+	private ShopItem item;
+	private ItemStack displayItem;
 	public short category;
 	public int index;
 	private float price;
@@ -41,28 +47,39 @@ public class GuiButtonShop extends GuiButton {
 	 * @param isBuying Whether the button is to initiate buying or selling. True = buying, False = selling
 	 * @param itemRender RenderItem instance from GuiContainer to render item
 	 */
-	public GuiButtonShop(int buttonId, int x, int y, ItemStack item, float price, boolean isBuying, RenderItem itemRender) {
+	public GuiButtonShop(int buttonId, int x, int y, ShopItem item, float price, boolean isBuying, RenderItem itemRender) {
 		super(buttonId, x, y, 16, 16, "");
 		this.price = price;
 		this.item = item;
 		this.isBuying = isBuying;
 		this.itemRender = itemRender;
 
+		String itemName = "";
+		if(item.isItem()){
+			itemName = item.getItem().getDisplayName();
+			displayItem = item.getItem();
+		}
+		else if (item.isFluid()){
+			itemName = item.getFluid().getLocalizedName();
+			displayItem = FluidUtil.getFilledBucket(item.getFluid());
+		}
+		else{
+			itemName = item.getOredict();
+			if(OreDictionary.getOres(itemName).size() > 0)
+				displayItem = OreDictionary.getOres(itemName).get(0);
+		}
+
 		ttl1 = new LinkedList<String>();
-		ttl1.add(item.getDisplayName());
+		ttl1.add(itemName);
 		ttl1.add("$"+getPrice(1));
 
 		ttl16 = new LinkedList<String>();
-		ttl16.add(item.getDisplayName());
+		ttl16.add(itemName);
 		ttl16.add("$"+getPrice(16));
 
 		ttl64 = new LinkedList<String>();
-		ttl64.add(item.getDisplayName());
+		ttl64.add(itemName);
 		ttl64.add("$"+getPrice(64));
-
-		item1 = item;
-		item16 = ItemHandlerHelper.copyStackWithSize(item, 16);
-		item64 = ItemHandlerHelper.copyStackWithSize(item, 64);
 
 		//Initialize ItemStacks from item
 		/*
@@ -83,22 +100,36 @@ public class GuiButtonShop extends GuiButton {
 		*/
 	}
 
+	/*
 	private void constructItemStacks(String itemName, int meta){
 		Item baseItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation(itemName));
 		item = new ItemStack(baseItem, 1, meta);
 	}
-
+	*/
 
 	@Override
 	public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks){
 		if(!visible)
 			return;
 		RenderHelper.enableGUIStandardItemLighting();
-		itemRender.renderItemAndEffectIntoGUI(item, x, y);
+		if(displayItem != null)
+			itemRender.renderItemAndEffectIntoGUI(displayItem, x, y);
+		//GlStateManager.scale(0.5, 0.5, 1);
+		GL11.glScalef(0.5f, 0.5f, 1);
+		drawString(mc.fontRenderer, getQuantity()+"", 2*(x+16)-mc.fontRenderer.getStringWidth(getQuantity()+""),
+				2*(y)+24, 0xFFFFFF);
+		GL11.glScalef(2, 2, 1);
+		/*
 		if(GuiScreen.isShiftKeyDown()){
 			drawString(mc.fontRenderer, "64", x+17-mc.fontRenderer.getStringWidth("64"), y+9, 0xFFFFFF);
 		}else if(GuiScreen.isCtrlKeyDown()){
 			drawString(mc.fontRenderer, "16", x+17-mc.fontRenderer.getStringWidth("16"), y+9, 0xFFFFFF);
+		}
+		*/
+		if(item.isOredict()){
+			drawString(mc.fontRenderer, "OD", x, y, 0xFFC921);
+		}else if(item.isFluid()){
+			drawString(mc.fontRenderer, "F", x, y, 0x6666FF);
 		}
 
 	}
@@ -112,13 +143,16 @@ public class GuiButtonShop extends GuiButton {
 
 	public List<String> getTooltipStrings(EntityPlayer player){
 
-		int quant = 1;
-		if(GuiScreen.isShiftKeyDown()){
-			quant = 64;
-		}else if(GuiScreen.isCtrlKeyDown()){
-			quant = 16;
+		int quant = getQuantity();
+		List<String> toret;
+		if(displayItem != null)
+			toret = displayItem.getTooltip(player, ITooltipFlag.TooltipFlags.ADVANCED);
+		else {
+			toret = new LinkedList<String>();
+			toret.add(item.getOredict());
+			if(item.getNbt() != null)
+				toret.add("With NBT: "+item.getNbt().toString());
 		}
-		List<String> toret = item.getTooltip(player, ITooltipFlag.TooltipFlags.NORMAL);
 		toret.add("");
 		toret.add("$"+quant*price);
 		return toret;
@@ -133,20 +167,25 @@ public class GuiButtonShop extends GuiButton {
 	}
 
 	/**
-	 *
-	 * @return ItemStack to be added/removed from player inventory
+	 * 1-16-64 for items/oredict items, 1-100-1000 for fluids
+	 * @return ItemStack to be added/removed from player inventory.
 	 */
-	public ItemStack getItemStack(){
-		int quant = 1;
+	public int getQuantity(){
+		int quantity = 1;
+
 		if(GuiScreen.isShiftKeyDown()){
-			quant = 64;
-			return item64;
+			if(item.isItem() || item.isOredict())
+				quantity = 64;
+			else
+				quantity = 1000;
 		}else if(GuiScreen.isCtrlKeyDown()){
-			quant = 16;
-			return item16;
-		}else{
-			return item;
+			if(item.isItem() || item.isOredict())
+				quantity = 16;
+			else
+				quantity = 100;
 		}
+
+		return quantity;
 
 		//System.out.println(item.getItem().getUnlocalizedName()+" : "+item.getMetadata());
 		//return new ItemStack(item.getItem(), quant, item.getMetadata());

@@ -1,0 +1,41 @@
+#ignore rows that start with a '#',,,
+,,,
+"#Item format: ""modname:item_name:metadata {nbt_data}"" metadata and {nbt_data} are optional. Can also use crafttweaker formatting (eg. ""<modname:item_name:metadata>.withTag{nbt_data}"")",,,
+"#Fluid format: ""fluid:fluid_name"" where fluid is literal. Can also use crafttweaker formatting",,,
+,,,
+"#Other configurations found within adminshop.cfg, such as selling price of Forge Energy",,,
+#See the examples below with the default shop,,,
+,,,
+#Category names for buy and sell. Put the category name in each column after the first,,,
+Buy Category Names:,Ores,Enchanted Books,
+Sell Category Names:,Ingots,,
+,,,
+,,,
+"#buy or sell 
+(from player's perspective)",Item/Fluid,Price,Category Index (starting from 0)
+buy,minecraft:iron_ore,30,0
+buy,minecraft:gold_ore,150,0
+buy,minecraft:coal_ore,25,0
+buy,minecraft:redstone_ore,25,0
+buy,minecraft:lapis_ore,150,0
+buy,minecraft:quartz_ore,25,0
+buy,minecraft:diamond_ore,300,0
+buy,minecraft:emerald_ore,300,0
+#,,,
+sell,ore:ingotIron,10,0
+sell,ore:ingotGold,40,0
+sell,ore:coal,2.5,0
+sell,ore:dustRedstone,2,0
+sell,ore:gemLapis,7.5,0
+sell,ore:gemQuartz,2.5,0
+sell,ore:gemDiamond,50,0
+sell,ore:gemEmerald,50,0
+#,,,
+buy,"minecraft:enchanted_book {StoredEnchantments:[{lvl:5, id:32}]}",1000,1
+buy,"minecraft:enchanted_book {StoredEnchantments:[{lvl:3, id:34}]}",500,1
+buy,"minecraft:enchanted_book {StoredEnchantments:[{lvl:1, id:33}]}",2000,1
+buy,"minecraft:enchanted_book {StoredEnchantments:[{lvl:3, id:35}]}",2000,1
+buy,"minecraft:enchanted_book {StoredEnchantments:[{lvl:1, id:70}]}",500,1
+buy,"minecraft:enchanted_book {StoredEnchantments:[{lvl:4, id:0}]}",750,1
+buy,"minecraft:enchanted_book {StoredEnchantments:[{lvl:5, id:16}]}",1000,1
+buy,"minecraft:enchanted_book {StoredEnchantments:[{lvl:5, id:48}]}",2000,1

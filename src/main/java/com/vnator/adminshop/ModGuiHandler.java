@@ -6,9 +6,6 @@ import com.vnator.adminshop.blocks.atm.TileEntityATM;
 import com.vnator.adminshop.blocks.seller.ContainerSeller;
 import com.vnator.adminshop.blocks.seller.GuiSeller;
 import com.vnator.adminshop.blocks.seller.TileEntitySeller;
-import com.vnator.adminshop.blocks.pedestal.ContainerPedestal;
-import com.vnator.adminshop.blocks.pedestal.GuiPedestal;
-import com.vnator.adminshop.blocks.pedestal.TileEntityPedestal;
 import com.vnator.adminshop.blocks.shop.ContainerShop;
 import com.vnator.adminshop.blocks.shop.GuiShop;
 import com.vnator.adminshop.blocks.shop.TileEntityShop;
@@ -31,8 +28,6 @@ public class ModGuiHandler implements IGuiHandler {
 	@Override
 	public Container getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z){
 		switch (ID){
-			case PEDESTAL:
-				return new ContainerPedestal(player.inventory, (TileEntityPedestal)world.getTileEntity(new BlockPos(x, y, z)));
 			case SHOP:
 				System.err.println("Opening Shop GUI!");
 				return new ContainerShop(player.inventory, (TileEntityShop)world.getTileEntity(new BlockPos(x, y, z)));
@@ -49,8 +44,6 @@ public class ModGuiHandler implements IGuiHandler {
 	@SideOnly(Side.CLIENT)
 	public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z){
 		switch (ID){
-			case PEDESTAL:
-				return new GuiPedestal(getServerGuiElement(ID, player, world, x, y, z), player.inventory);
 			case SHOP:
 				return new GuiShop(getServerGuiElement(ID, player, world, x, y, z), player);
 			case SELLER:
