@@ -305,7 +305,7 @@ public class ShopLoader {
 		//Check if it's an oredict entry
 		else if(itemParts[0].equals("ore")){
 			//Check if there is at least one item with specified oredict entry
-			if(!OreDictionary.doesOreNameExist(itemParts[1])){
+			if(OreDictionary.getOres(itemParts[1]).size() == 0){
 				logError("Error Line "+lineNum+": OreDictionary entry named "+itemParts[1]+
 						" doesn't have any items registered to it. Double " +
 						"check entry or add entries via crafttweaker or a new mod that adds those entries", player);

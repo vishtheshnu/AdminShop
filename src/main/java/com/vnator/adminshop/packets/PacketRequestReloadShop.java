@@ -3,6 +3,7 @@ package com.vnator.adminshop.packets;
 import com.vnator.adminshop.blocks.shop.ShopLoader;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
+import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
@@ -37,7 +38,8 @@ public class PacketRequestReloadShop implements IMessage {
 		private void handle(PacketRequestReloadShop message, MessageContext ctx){
 			ctx.getServerHandler().player.sendMessage(new TextComponentString("Beginning reload!"));
 			//Reload shop from file, send requesting player the error log
-			ShopLoader.getInstance().loadShop(ctx.getServerHandler().player);
+			ICommandSender sendingPlayer = ctx.getServerHandler().player;
+			ShopLoader.getInstance().loadShop(sendingPlayer);
 
 			//Send updated shop to all players
 			for (EntityPlayerMP player : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()){

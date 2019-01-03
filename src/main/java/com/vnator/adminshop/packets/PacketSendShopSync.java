@@ -52,7 +52,7 @@ public class PacketSendShopSync implements IMessage {
 		public void handle(PacketSendShopSync message, MessageContext ctx){
 			//Load shop with shopstream
 			AdminShop.logger.log(Level.INFO, "Received shop file:\n"+message.myfile);
-			ShopLoader.getInstance().loadShop(Minecraft.getMinecraft().player, message.shopStream);
+			ShopLoader.getInstance().loadShop(null, message.shopStream); //only print errors for sender
 		}
 	}
 }

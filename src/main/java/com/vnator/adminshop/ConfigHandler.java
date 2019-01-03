@@ -35,10 +35,10 @@ public class ConfigHandler {
 	public static class GeneralCategory{
 		@Config.Comment({"How much money each player starts with"})
 		public float startingMoney = 100f;
-		@Config.Comment({"Minimum mb sold by Seller at a time. Smaller values = more lag. Between 1 and 2 billion-ish"})
-		public int liquidSellPacketSize = 1;
-		@Config.Comment({"Minimum power sold by Seller at a time. Smaller values = more lag"})
-		public int powerSellPacketSize = 1000;
+		@Config.Comment({"Minimum mb sold by Seller at a time. Smaller values = more lag. Set low if difficult to obtain and expensive liquids are sellable, like UU matter."})
+		public int liquidSellPacketSize = 10;
+		@Config.Comment({"Minimum power sold by Seller at a time. Smaller values = more lag. Set low if it's extremely difficult for the player to produce power in this modpack."})
+		public int powerSellPacketSize = 100;
 		@Config.Comment({"How much money to give the play in exchange for each Forge Energy unit"})
 		public float forgeEnergyPrice = 0.0005f;
 	}
