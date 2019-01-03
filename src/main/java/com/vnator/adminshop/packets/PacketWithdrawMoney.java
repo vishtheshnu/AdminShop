@@ -9,6 +9,8 @@ import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagString;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -51,8 +53,17 @@ public class PacketWithdrawMoney implements IMessage{
 
 			//Create Check and see if there's enough room
 			NBTTagCompound tag = new NBTTagCompound();
+			NBTTagCompound displayTag = new NBTTagCompound();
+			NBTTagList loreTag = new NBTTagList();
+
 			tag.setFloat("value", message.money);
+			tag.setTag("display", displayTag);
+			displayTag.setTag("Name", new NBTTagString("Check $"+message.money));
+			displayTag.setTag("Lore", loreTag);
+			loreTag.appendTag(new NBTTagString("From: "+player.getName()));
+
 			ItemStack check = new ItemStack(Item.getByNameOrId("adminshop:check"), 1, 0);
+
 			check.setTagCompound(tag);
 			AdminShop.logger.log(Level.INFO, "Check created! NBT = "+check.getTagCompound().getFloat("value"));
 			IItemHandler inv = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);

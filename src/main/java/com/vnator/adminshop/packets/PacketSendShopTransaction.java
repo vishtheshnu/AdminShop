@@ -123,7 +123,7 @@ public class PacketSendShopTransaction implements IMessage {
 				ItemStack toInsert = item.getItem().copy();
 				toInsert.setCount(quantity);
 				ItemStack returned = ItemHandlerHelper.insertItemStacked(inventory, toInsert, true);
-				if(returned.getCount() == 0){
+				if(returned.getCount() == quantity){
 					player.sendMessage(new TextComponentString("Not enough inventory space for item!"));
 					return;
 				}

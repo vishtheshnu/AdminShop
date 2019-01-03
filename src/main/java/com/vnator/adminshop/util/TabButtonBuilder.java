@@ -1,4 +1,4 @@
-package com.vnator.adminshop.utils;
+package com.vnator.adminshop.util;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;

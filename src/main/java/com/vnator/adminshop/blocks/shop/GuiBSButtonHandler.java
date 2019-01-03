@@ -1,12 +1,10 @@
 package com.vnator.adminshop.blocks.shop;
 
 import com.vnator.adminshop.AdminShop;
-import com.vnator.adminshop.utils.GuiButtonShop;
-import net.minecraft.client.gui.GuiButton;
+import com.vnator.adminshop.util.GuiButtonShop;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.Level;
-import scala.Int;
 
 import java.util.ArrayList;
 
