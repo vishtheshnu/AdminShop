@@ -3,6 +3,7 @@ package com.vnator.adminshop;
 import com.vnator.adminshop.blocks.BlockBase;
 import com.vnator.adminshop.blocks.BlockTileEntity;
 import com.vnator.adminshop.blocks.atm.BlockATM;
+import com.vnator.adminshop.blocks.autoShop.BlockAutoBuyer;
 import com.vnator.adminshop.blocks.seller.BlockSeller;
 import com.vnator.adminshop.blocks.shop.BlockShop;
 import net.minecraft.block.Block;
@@ -25,6 +26,7 @@ public class ModBlocks {
 	public static BlockShop shop = new BlockShop();
 	public static BlockSeller itemSeller = new BlockSeller();
 	public static BlockATM atm = new BlockATM();
+	public static BlockAutoBuyer itemBuyer = new BlockAutoBuyer();
 
     public static void register(RegistryEvent.Register<Block> event){
 		event.getRegistry().registerAll(blockList.toArray(new BlockBase[0]));

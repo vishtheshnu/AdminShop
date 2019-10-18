@@ -41,6 +41,14 @@ public class BalanceAdapter{
 		return world.getCapability(LedgerProvider.LEDGER_CAPABILITY, null).withdraw(player, amount);
 	}
 
+	public static boolean canWithdraw(EntityPlayer player, float amount){
+		return player.world.getCapability(LedgerProvider.LEDGER_CAPABILITY, null).canPerformWithdraw(getPlayerID(player), amount);
+	}
+
+	public static boolean canWithdraw(World world, String player, float amount){
+		return world.getCapability(LedgerProvider.LEDGER_CAPABILITY, null).canPerformWithdraw(player, amount);
+	}
+
 	public static void setMoney(EntityPlayer player, float amount){
 		player.world.getCapability(LedgerProvider.LEDGER_CAPABILITY, null).setMoney(getPlayerID(player), amount);
 	}

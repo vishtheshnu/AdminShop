@@ -7,12 +7,11 @@
 #See the examples below with the default shop,,,
 ,,,
 #Category names for buy and sell. Put the category name in each column after the first,,,
-Buy Category Names:,Ores,Enchanted Books,
+Buy Category Names:,Ores,Books,
 Sell Category Names:,Ingots,,
 ,,,
 ,,,
-"#buy or sell 
-(from player's perspective)",Item/Fluid,Price,Category Index (starting from 0)
+"#buy or sell (from player's perspective)",Item/Fluid,Price,Category Index (starting from 0)
 buy,minecraft:iron_ore,30,0
 buy,minecraft:gold_ore,150,0
 buy,minecraft:coal_ore,25,0
@@ -24,7 +23,7 @@ buy,minecraft:emerald_ore,300,0
 #,,,
 sell,ore:ingotIron,10,0
 sell,ore:ingotGold,40,0
-sell,ore:coal,2.5,0
+sell,minecraft:coal,2.5,0
 sell,ore:dustRedstone,2,0
 sell,ore:gemLapis,7.5,0
 sell,ore:gemQuartz,2.5,0

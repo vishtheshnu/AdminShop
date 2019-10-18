@@ -7,7 +7,7 @@ public class AdminShopCommand extends CommandTreeBase {
 
 	public AdminShopCommand(){
 		super.addSubcommand(new CommandReloadShop());
-		//super.addSubcommand(new CommandOpenShop());
+		super.addSubcommand(new CommandOpenShop());
 	}
 
 	@Override

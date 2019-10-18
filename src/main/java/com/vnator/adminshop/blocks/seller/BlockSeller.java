@@ -43,7 +43,7 @@ public class BlockSeller extends BlockTileEntity<TileEntitySeller> {
 	}
 	@Override
 	public BlockRenderLayer getBlockLayer() {
-		return BlockRenderLayer.TRANSLUCENT;
+		return BlockRenderLayer.CUTOUT;
 	}
 
 	@Override

@@ -36,19 +36,6 @@ public class TileEntitySeller extends TileEntity implements ITickable, IFluidHan
 		@Override
 		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate){
 			return super.insertItem(slot, stack, simulate);
-			/*
-			if(slot == 0) { //Sell Item
-				String id = stack.getItem().getRegistryName() + ":" + stack.getMetadata();
-				if (ShopStock.sellItemMap.containsKey(id))
-					return super.insertItem(slot, stack, simulate);
-				else
-					return stack;
-			}else if(slot == 1){ //Sell fluids
-
-			}else{ //Sell power
-
-			}
-			*/
 		}
 	};
 
@@ -120,6 +107,8 @@ public class TileEntitySeller extends TileEntity implements ITickable, IFluidHan
 					//inventory.setStackInSlot(2, ItemStack.EMPTY);
 				}else {
 					float money = power * ConfigHandler.GENERAL_CONFIGS.forgeEnergyPrice;
+					System.out.println("Sold power: "+power+" for $"+ConfigHandler.GENERAL_CONFIGS.forgeEnergyPrice+" per rf, total:");
+					System.out.println("$"+money);
 					BalanceAdapter.deposit(world, player, money);
 					markDirty();
 				}
@@ -141,6 +130,8 @@ public class TileEntitySeller extends TileEntity implements ITickable, IFluidHan
 			if(battery.getEnergyStored() >= ConfigHandler.GENERAL_CONFIGS.powerSellPacketSize){
 				int cap = battery.deleteEnergy(); //This method marks this TileEntity as dirty
 				float money = cap * ConfigHandler.GENERAL_CONFIGS.forgeEnergyPrice;
+				System.out.println("Sold power: "+cap+" for $"+ConfigHandler.GENERAL_CONFIGS.forgeEnergyPrice+" per rf, total:");
+				System.out.println("$"+money);
 				BalanceAdapter.deposit(world, player, money);
 			}
 		}

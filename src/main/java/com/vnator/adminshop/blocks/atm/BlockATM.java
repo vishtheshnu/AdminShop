@@ -32,7 +32,7 @@ public class BlockATM extends BlockTileEntity<TileEntityATM> {
 	}
 	@Override
 	public BlockRenderLayer getBlockLayer() {
-		return BlockRenderLayer.TRANSLUCENT;
+		return BlockRenderLayer.CUTOUT;
 	}
 
 	@Override

@@ -37,6 +37,7 @@ public class ShopStock {
 	public static float [] buyFluidPrices;
 
 	public static HashMap<String, ShopItem> sellMap = new HashMap<String, ShopItem>();
+	public static HashMap<String, ShopItem> buyMap = new HashMap<String, ShopItem>();
 	//public static HashMap<String, Float> sellItemMap = new HashMap<String, Float>();
 	//public static HashMap<String, Float> sellFluidMap = new HashMap<String, Float>();
 	//public static HashMap<Integer, Float> sellItemOredictMap = new HashMap<Integer, Float>();
@@ -69,7 +70,7 @@ public class ShopStock {
 		buyStock = buyItems;
 		sellStock = sellItems;
 
-		//Add to sell maps
+		//Add to sell map
 		sellMap.clear();
 		for(ArrayList<ShopItem> siList : sellStock){
 			for(ShopItem si : siList){
@@ -78,93 +79,17 @@ public class ShopStock {
 				sellMap.put(str, si);
 			}
 		}
-	}
 
-	/*
-	public static void setShopStockBuy(ArrayList<String[]> itemNames, ArrayList<Float[]> itemPrices){
-		buyItems = new ArrayList<ItemStack[]>();
-		buyItemPrices = itemPrices;
-
-		for(int i = 0; i < itemNames.size(); i++){
-			buyItems.add(new ItemStack[itemNames.get(i).length]);
-			for(int j = 0; j < itemNames.get(i).length; j++){
-				ItemStack item = parseItemString(itemNames.get(i)[j]);
-				if(item == null){
-					AdminShop.logger.log(Level.ERROR,
-							"Either non-existent value or OreDict entry used for buy list.\n" +
-									"Category "+i+", item index "+j+", name: "+itemNames.get(i)[j]);
-					item = ItemStack.EMPTY;
-				}
-				buyItems.get(i)[j] = item;
+		//Add to buy map
+		buyMap.clear();
+		for(ArrayList<ShopItem> siList : buyStock){
+			for(ShopItem si : siList){
+				String str = si.toString();
+				System.out.println(str);
+				buyMap.put(str, si);
 			}
 		}
 	}
-
-	public static void setShopStockSell(ArrayList<String[]> itemNames, ArrayList<Float[]> itemPrices){
-		sellItems = new ArrayList<ShopItemStack[]>();
-		sellItemPrices = itemPrices;
-
-		for(int i = 0; i < itemNames.size(); i++){
-			sellItems.add(new ShopItemStack[itemNames.get(i).length]);
-			for(int j = 0; j < itemNames.get(i).length; j++){
-				String itemName = itemNames.get(i)[j];
-				ItemStack tempItem = parseItemString(itemName);
-				if(tempItem == null){
-					sellItems.get(i)[j] = parseOredict(itemName);
-				}
-				else{
-					sellItems.get(i)[j] = new ShopItemStack(tempItem);
-				}
-				AdminShop.logger.log(Level.INFO, "Sellable item: "+itemName);
-
-				String myname;
-				if(sellItems.get(i)[j].isOreDict()){
-					myname = "ore:"+sellItems.get(i)[j].getOreName();
-					sellItemOredictMap.put(OreDictionary.getOreID(sellItems.get(i)[j].getOreName()), sellItemPrices.get(i)[j]);
-				}else{
-					ItemStack stack = sellItems.get(i)[j].getItem();
-					myname = stack.getItem().getRegistryName() + ":" + stack.getMetadata();
-					if(stack.getTagCompound() != null)
-						myname += " "+stack.getTagCompound().toString();
-				}
-
-				if(!sellItemMap.containsKey(myname))
-					sellItemMap.put(myname, itemPrices.get(i)[j]);
-				else
-					sellItemMap.put(myname, Math.max(sellItemMap.get(myname), itemPrices.get(i)[j]));
-			}
-		}
-	}
-	public static void setShopLiquids(String [] buyNames, float [] buyPrices, String [] sellNames, float [] sellPrices){
-		buyFluids = new FluidStack[buyNames.length];
-		for(int i = 0; i < buyNames.length; i++){
-			buyFluids[i] = parseFluidString(buyNames[i]);
-		}
-		buyFluidPrices = buyPrices;
-
-		for(int i = 0; i < sellNames.length; i++){
-			sellFluidMap.put(sellNames[i], sellPrices[i]);
-		}
-	}
-
-	private static FluidStack parseFluidString(String s){
-		String [] split = s.split(" ");
-
-		NBTTagCompound tag = new NBTTagCompound();
-
-		if(split.length == 2){ //NBT present
-			try {
-				tag = JsonToNBT.getTagFromJson(split[1]);
-			}catch (NBTException e){
-				AdminShop.logger.log(Level.ERROR, "Improperly formatted fluid nbt: "+s);
-			}
-		}else if(split.length > 2){
-			AdminShop.logger.log(Level.ERROR, "Improperly formatted fluid nbt: "+s);
-		}
-
-		return new FluidStack(FluidRegistry.getFluid(split[0]), 1, tag);
-	}
-	*/
 
 	/**
 	 * Returns an ItemStack representing the parameter string. Returns null if string is an oredict entry

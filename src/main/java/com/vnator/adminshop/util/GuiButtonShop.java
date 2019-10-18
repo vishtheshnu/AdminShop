@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.oredict.OreDictionary;
 import org.lwjgl.opengl.GL11;
@@ -25,6 +26,7 @@ public class GuiButtonShop extends GuiButton {
 	private float price;
 	private boolean isBuying;
 	private RenderItem itemRender;
+	private int color;
 
 	private LinkedList<String> ttl1, ttl16, ttl64;
 
@@ -53,6 +55,9 @@ public class GuiButtonShop extends GuiButton {
 		else if (item.isFluid()){
 			itemName = item.getFluid().getLocalizedName();
 			displayItem = FluidUtil.getFilledBucket(item.getFluid());
+			if(displayItem == null || displayItem.isEmpty()){
+				color = item.getFluid().getFluid().getColor();
+			}
 		}
 		else{
 			itemName = item.getOredict();
@@ -103,13 +108,16 @@ public class GuiButtonShop extends GuiButton {
 		if(!visible)
 			return;
 		RenderHelper.enableGUIStandardItemLighting();
-		if(displayItem != null)
+		if(displayItem != null && !displayItem.isEmpty())
 			itemRender.renderItemAndEffectIntoGUI(displayItem, x, y);
+		else{
+			drawRect(x, y, x+width, y+height, color);
+		}
 		//GlStateManager.scale(0.5, 0.5, 1);
 		GL11.glScalef(0.5f, 0.5f, 1);
 		drawString(mc.fontRenderer, getQuantity()+"", 2*(x+16)-mc.fontRenderer.getStringWidth(getQuantity()+""),
 				2*(y)+24, 0xFFFFFF);
-		GL11.glScalef(2, 2, 1);
+
 		/*
 		if(GuiScreen.isShiftKeyDown()){
 			drawString(mc.fontRenderer, "64", x+17-mc.fontRenderer.getStringWidth("64"), y+9, 0xFFFFFF);
@@ -118,10 +126,11 @@ public class GuiButtonShop extends GuiButton {
 		}
 		*/
 		if(item.isOredict()){
-			drawString(mc.fontRenderer, "OD", x, y, 0xFFC921);
+			drawString(mc.fontRenderer, "OD", 2*x, 2*y, 0xFFC921);
 		}else if(item.isFluid()){
-			drawString(mc.fontRenderer, "F", x, y, 0x6666FF);
+			drawString(mc.fontRenderer, "F", 2*x, 2*y, 0x6666FF);
 		}
+		GL11.glScalef(2, 2, 1);
 
 	}
 
@@ -136,13 +145,16 @@ public class GuiButtonShop extends GuiButton {
 
 		int quant = getQuantity();
 		List<String> toret;
-		if(displayItem != null)
-			toret = displayItem.getTooltip(player, ITooltipFlag.TooltipFlags.ADVANCED);
-		else {
+		if(displayItem != null && !displayItem.isEmpty())
+			toret = displayItem.getTooltip(player, ITooltipFlag.TooltipFlags.NORMAL);
+		else if(item.isOredict()){
 			toret = new LinkedList<String>();
 			toret.add(item.getOredict());
 			if(item.getNbt() != null)
 				toret.add("With NBT: "+item.getNbt().toString());
+		}else{
+			toret = new LinkedList<String>();
+			toret.add(item.getFluid().getLocalizedName());
 		}
 		toret.add("");
 		toret.add("$"+quant*price);

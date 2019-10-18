@@ -26,12 +26,18 @@ public class CommandOpenShop extends CommandBase {
 
 	@Override
 	public void execute(MinecraftServer minecraftServer, ICommandSender iCommandSender, String[] strings) throws CommandException {
-		if(iCommandSender instanceof EntityPlayer && Minecraft.getMinecraft().world.isRemote) {
-			AdminShop.logger.log(Level.INFO, "Opening shop!");
-			EntityPlayer player = ((EntityPlayer) iCommandSender);
-			//Minecraft.getMinecraft().displayGuiScreen(new GuiShop(new ContainerShop(), player));
-		}else{
+		if(!(iCommandSender instanceof EntityPlayer)){
 			AdminShop.logger.log(Level.ERROR, "Command executor isn't a player!");
+			return;
+		}
+
+		EntityPlayer player = ((EntityPlayer) iCommandSender);
+		if(Minecraft.getMinecraft().world.isRemote) {
+			//Minecraft.getMinecraft().displayGuiScreen(new GuiShop(new ContainerShop(player.inventory), player));
+			//Minecraft.getMinecraft().displayGuiScreen(new GuiShop(new ContainerShop(player.inventory), player));
+		}else{
+			AdminShop.logger.log(Level.INFO, "Opening shop!");
+			player.openGui(AdminShop.instance, ModGuiHandler.SHOP, player.world, (int)player.posX, (int)player.posY, (int)player.posZ);
 		}
 
 

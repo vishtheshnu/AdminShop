@@ -2,6 +2,8 @@ package com.vnator.adminshop.blocks.shop;
 
 import com.opencsv.CSVReader;
 import com.vnator.adminshop.AdminShop;
+import net.minecraft.advancements.AdvancementList;
+import net.minecraft.advancements.AdvancementManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.item.Item;
@@ -22,6 +24,8 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Loads the contents of the shop from a csv file. Is a singleton
@@ -32,6 +36,10 @@ public class ShopLoader {
 	private static final String CT_ITEM_REGEX = "<[a-zA-Z0-9]+:[a-zA-Z0-9]+(:[0-9]+)?>\\.withTag\\(\\{.*\\}\\)"; //<mod:item:metadata>.withTag({...})
 	private static final String SHOP_FILE = "config/adminshop/shop.csv";
 	private static final String DEFAULT_SHOP_FILE = "assets/adminshop/default_shop.csv";//= new ResourceLocation(AdminShop.MODID, "default_shop.csv");
+	private static final String CT_CAST_REGEX = //Matches "(value) as (var_type)" outside of a string to turn back into just the value
+			"([0-9]+(\\.[0-9]*)?|true|false) as (int|short|byte|bool|float|double|long)(\\[\\])?" +
+					"(?=[^\"]*(\"[^\"]*\"[^\"]*)*$)";
+
 	private static ShopLoader inst;
 
 	private static final String CATEGORY_OPTION_BUY = "Buy Category Names:";
@@ -93,10 +101,6 @@ public class ShopLoader {
 			while(iter.hasNext()){
 				lineNum++;
 				String [] line = iter.next();
-				System.out.print(lineNum+"| ");
-				for(String s : line)
-					System.out.print("|"+s);
-				System.out.println();
 				parseLine(line, lineNum, player);
 			}
 		}catch (FileNotFoundException e){
@@ -254,16 +258,19 @@ public class ShopLoader {
 
 		//Convert crafttweaker format to AdminShop format if it's in there
 
-		//Remove < and > if exist
-		if(item.charAt(0) == '<')
-			item = item.substring(1);
+		//Remove < and > if they exist
+		if(item.contains("<"))
+			item = item.replace("<", "");
 		if(item.contains(">"))
-			item = item.replace('>', ' ');
+			item = item.replace(">", "");
+
+		//Remove excess space
+		item = item.trim();
 
 		//Change .withTag({...}) to just {...}
 		if(item.contains(".withTag(")){
-			item = item.replace(".withTag(", " ");
-			item = item.substring(0 , item.length()-1);
+			item = item.replaceFirst("\\.withTag\\(", " ");
+			item = item.substring(0, item.lastIndexOf(')'));
 		}
 
 		//Retrieve NBT if exists
@@ -271,6 +278,14 @@ public class ShopLoader {
 		if(item.contains("{")) {
 			String nbtText = item.substring(item.indexOf('{'), item.lastIndexOf('}'));
 			nbtText += '}';
+			//Replace the value casting done by crafttweaker with just the value
+			Matcher matcher = Pattern.compile(CT_CAST_REGEX).matcher(nbtText);
+			while(matcher.find()){
+				String num = matcher.group().substring(0, matcher.group().indexOf(" as"));
+				nbtText = nbtText.replace(matcher.group(), num);
+			}
+
+			//Parse nbt from string to nbt tag object
 			try {
 				nbt = JsonToNBT.getTagFromJson(nbtText);
 			} catch (NBTException e) {
@@ -292,6 +307,7 @@ public class ShopLoader {
 						"doesn't exist! Please double check name", player);
 			}
 			FluidStack fstack = new FluidStack(fluid, 1, nbt);
+			fstack.tag = nbt;
 			ShopItem toret = new ShopItem(fstack);
 			//Check other parsed info to warn user of improperly formatted line
 			if(itemParts.length == 3){
@@ -322,7 +338,7 @@ public class ShopLoader {
 					meta = Integer.parseInt(itemParts[2]);
 				}catch(NumberFormatException e){
 					logError("Error Line "+lineNum+": Specified metadata isn't an integer." +
-							" You must use a whole number", player);
+							" You must use a whole number. Will set to 0", player);
 					meta = 0;
 				}
 			}
@@ -332,6 +348,7 @@ public class ShopLoader {
 						+itemParts[1]+" doesn't exist! Please double check name", player);
 			}
 			ItemStack istack = new ItemStack(i, 1, meta, nbt);
+			istack.setTagCompound(nbt);
 			return new ShopItem(istack);
 		}
 	}

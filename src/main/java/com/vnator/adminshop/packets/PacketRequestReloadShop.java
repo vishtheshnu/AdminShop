@@ -36,10 +36,11 @@ public class PacketRequestReloadShop implements IMessage {
 		}
 
 		private void handle(PacketRequestReloadShop message, MessageContext ctx){
-			ctx.getServerHandler().player.sendMessage(new TextComponentString("Beginning reload!"));
+			ctx.getServerHandler().player.sendMessage(new TextComponentString("Beginning reload..."));
 			//Reload shop from file, send requesting player the error log
 			ICommandSender sendingPlayer = ctx.getServerHandler().player;
 			ShopLoader.getInstance().loadShop(sendingPlayer);
+			sendingPlayer.sendMessage(new TextComponentString("Finished loading shop. Errors (if any) are printed above"));
 
 			//Send updated shop to all players
 			for (EntityPlayerMP player : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()){

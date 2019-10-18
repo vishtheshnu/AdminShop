@@ -34,7 +34,7 @@ public class BlockShop extends BlockTileEntity<TileEntityShop> {
 	}
 	@Override
 	public BlockRenderLayer getBlockLayer() {
-		return BlockRenderLayer.TRANSLUCENT;
+		return BlockRenderLayer.CUTOUT;
 	}
 
 	@Override

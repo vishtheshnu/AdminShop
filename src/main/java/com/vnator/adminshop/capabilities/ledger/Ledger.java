@@ -38,7 +38,10 @@ public class Ledger implements ILedger{
 
 	@Override
 	public boolean canPerformWithdraw(String username, float money) {
-		return balances.get(username) >= money;
+		if(balances.containsKey(username))
+			return balances.get(username) >= money;
+		else
+			return false;
 	}
 
 	@Override

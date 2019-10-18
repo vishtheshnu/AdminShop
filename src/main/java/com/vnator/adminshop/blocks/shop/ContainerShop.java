@@ -11,7 +11,7 @@ import net.minecraftforge.items.IItemHandler;
 
 public class ContainerShop extends Container {
 
-	public ContainerShop(InventoryPlayer playerInv, final TileEntityShop shop){
+	public ContainerShop(InventoryPlayer playerInv){
 		for(int i = 0; i < 3; i++){
 			for(int j = 0; j < 9; j++){
 				addSlotToContainer(new Slot(playerInv, j + i*9 + 9, 16+j*18, 140+i*18));
