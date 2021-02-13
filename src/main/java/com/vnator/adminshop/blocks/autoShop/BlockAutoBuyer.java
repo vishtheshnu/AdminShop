@@ -1,5 +1,11 @@
 package com.vnator.adminshop.blocks.autoShop;
 
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyDirection;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.block.Block;
+import net.minecraft.block.state.BlockStateContainer;
+
 import com.vnator.adminshop.AdminShop;
 import com.vnator.adminshop.ModGuiHandler;
 import com.vnator.adminshop.blocks.BlockTileEntity;
@@ -27,8 +33,11 @@ public class BlockAutoBuyer extends BlockTileEntity<TileEntityAutoBuyer> {
 		return BlockRenderLayer.CUTOUT;
 	}
 
-	public BlockAutoBuyer(){
-		super(Material.ROCK, "buyer");
+	public static final PropertyDirection FACING = PropertyDirection.create("facing", EnumFacing.Plane.HORIZONTAL);
+    	private static boolean hasTileEntity;
+	
+	public BlockAutoBuyer(){super(Material.ROCK, "buyer");
+		setDefaultState(blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH));
 	}
 
 	@Override
@@ -77,6 +86,37 @@ public class BlockAutoBuyer extends BlockTileEntity<TileEntityAutoBuyer> {
 				ent.setPlayer(placer.getUniqueID().toString());
 		}
 	}
+	
+	@Override
+	protected BlockStateContainer createBlockState() {
+		 return new BlockStateContainer(this, new IProperty[] { FACING});
+	}
+
+    @Override
+    public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY,
+			float hitZ, int meta, EntityLivingBase placer, EnumHand hand) {
+        return super.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, placer, hand).withProperty(FACING, placer.getHorizontalFacing().getOpposite());
+    }
+
+    @Override
+    public IBlockState getStateFromMeta(int meta)
+    {
+        EnumFacing enumfacing = EnumFacing.getFront(meta);
+
+        if (enumfacing.getAxis() == EnumFacing.Axis.Y)
+        {
+            enumfacing = EnumFacing.NORTH;
+        }
+
+        return getDefaultState().withProperty(FACING, enumfacing);
+    }
+
+    @Override
+    public int getMetaFromState(IBlockState state)
+    {
+        return ((EnumFacing)state.getValue(FACING)).getIndex();
+    }
+
 
 	@Override
 	public Class<TileEntityAutoBuyer> getTileEntityClass() {
