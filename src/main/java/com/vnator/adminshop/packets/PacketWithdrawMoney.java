@@ -58,9 +58,9 @@ public class PacketWithdrawMoney implements IMessage{
 
 			tag.setFloat("value", message.money);
 			tag.setTag("display", displayTag);
-			displayTag.setTag("Name", new NBTTagString("Check $"+message.money));
+			displayTag.setTag("Name", new NBTTagString("Banker's Check"));
 			displayTag.setTag("Lore", loreTag);
-			loreTag.appendTag(new NBTTagString("From: "+player.getName()));
+			loreTag.appendTag(new NBTTagString("Value: $"+message.money));
 
 			ItemStack check = new ItemStack(Item.getByNameOrId("adminshop:check"), 1, 0);
 
