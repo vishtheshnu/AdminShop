@@ -2,8 +2,13 @@
   "forge_marker": 1,
 
   "variants": {
-    "normal": {
-      "model": "adminshop:shop"
-    }
+    "facing=north": {
+      "model": "adminshop:shop"},
+	"facing=east": {
+      "model": "adminshop:shop", "y": 90 },
+	"facing=south": {
+      "model": "adminshop:shop", "y": 180 },
+	"facing=west": {
+      "model": "adminshop:shop", "y": 270 }
   }
 }
